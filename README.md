@@ -15,5 +15,6 @@ This public preview release focuses on bringing traditional batch scheduler func
 
 For more information about Batch, see
 * https://cloud.google.com/batch
+* https://github.com/googleapis/googleapis/tree/master/google/cloud/batch
 
 You can go to google-batch-discuss to reach out to Googlers and the community for assistance.
