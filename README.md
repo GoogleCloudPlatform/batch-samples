@@ -7,13 +7,13 @@ Batch is a fully-managed cloud service for managing HPC, AI/ML, and data process
 
 This public preview release focuses on bringing traditional batch scheduler functionality into a cloud-first world. Simply focus on your workload and let Google Cloud manage the infrastructure and lifecylce of the resources. To the end-user Batch presents a familiar interface that supports well-understood batch concepts, including
 
-Support for submitting shell scripts as batch jobs
-Support for containerized batch jobs
-The ability to easily specify resources required by a job (vCPU, memory, GPUs, disks)
-Retries and Priorities
-This repository contains scripts, tools and sample jobs for use with Batch.
+* Support for submitting shell scripts as batch jobs
+* Support for containerized batch jobs
+* The ability to easily specify resources required by a job (vCPU, memory, GPUs, disks)
+* Retries and Priorities
+* This repository contains scripts, tools and sample jobs for use with Batch.
 
 For more information about Batch, see
+* https://cloud.google.com/batch
 
-https://cloud.google.com/batch
 You can go to google-batch-discuss to reach out to Googlers and the community for assistance.
