@@ -1,0 +1,48 @@
+{
+  "taskGroups": [
+    {
+      "taskSpec": {
+        "runnables": [
+          {
+            "script": {
+              "text": "bash /mnt/share/transcode.sh"
+            }
+          }
+        ],
+        "computeResource": {
+          "cpuMilli": 2000,
+          "memoryMib": 2048
+        },
+        "volumes": [
+          {
+            "gcs": {
+              "remotePath": "[BUCKET_NAME]"
+            },
+            "mountPath": "/mnt/share"
+          }
+        ],
+        "maxRetryCount": 2,
+        "maxRunDuration": "600s"
+      },
+      "taskCount": 3,
+      "parallelism": 2
+    }
+  ],
+  "allocationPolicy": {
+    "instances": [
+      {
+        "policy": {
+          "machineType": "n2d-standard-4",
+          "provisioningModel": "SPOT"
+        }
+      }
+    ]
+  },
+  "labels": {
+    "department": "creative",
+    "env": "testing"
+  },
+  "logsPolicy": {
+    "destination": "CLOUD_LOGGING"
+  }
+}
