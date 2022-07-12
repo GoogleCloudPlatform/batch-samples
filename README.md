@@ -17,4 +17,4 @@ For more information about Batch, see
 * https://cloud.google.com/batch
 * https://github.com/googleapis/googleapis/tree/master/google/cloud/batch
 
-You can go to google-batch-discuss to reach out to Googlers and the community for assistance.
+You can go to the [Cloud Forum](https://www.googlecloudcommunity.com/gc/Infrastructure-Compute-Storage/bd-p/cloud-infrastructure) to engage with the Batch community for assistance.
