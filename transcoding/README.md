@@ -40,7 +40,7 @@ gcloud services enable batch.googleapis.com
 
 ## Prepare a Cloud Storage bucket
 
-You can use a Cloud Storage bucket to store objects for Batch tasks. We recommend creating a new bucket so that it doesn't affect other data you might have on Google Cloud.
+You can use a Cloud Storage bucket to store objects for Batch jobs. We recommend creating a new bucket so that it doesn't affect other data you might have on Google Cloud.
 In this tutorial, we'll use `[BUCKET_NAME]` as a placeholder of the bucket name you use and you need replace it with an actual bucket name you're using.
 
 Run the following commands to create a new bucket and copy tutorial files to the bucket.
@@ -71,7 +71,7 @@ The JSON file defines a job with the following specifications:
   - Batch should run at most two tasks at the same time.
 - An allocation policy to use spot [n2d-standard-4](https://cloud.google.com/compute/docs/general-purpose-machines) instances to run the tasks.
 
-## Submit the task
+## Submit the job
 
 To run the Batch job, you first need to submit it to Batch.
 The following command will submit a job named `transcode` using the definition in `job.json` in the us-central1 region.
@@ -121,9 +121,9 @@ uid: j-7e152098-2f6f-4016-bee4-be8db1a448d4
 updateTime: '2022-07-11T18:09:08.328228956Z'
 ```
 
-## Check the task status
+## Check the job status
 
-You can check the current status of the task by running the `batch jobs describe` command.
+You can check the current status of the job by running the `batch jobs describe` command.
 
 ```
 gcloud beta batch jobs describe transcode --location=us-central1
@@ -198,7 +198,7 @@ j-7e152098-2f6f-4016-bee4-be8db1a448d4-group0-0-rswj  us-central1-c  n2d-standar
 
 ## Check the logs with Cloud Logging
 
-The task should finish in about 5 mins.
+The job should finish in about 5 mins.
 You can see the progress by looking at the log with Cloud Logging.
 
 Open the [Cloud Logging Console](https://console.cloud.google.com/logs/query) and inspect the log.
@@ -208,13 +208,13 @@ Here's a screenshot of what it looks like:
 
 ![A screenshot with titled Logs Explorer. It displayes log outputs of Batch.](logging-console.png)
 
-You can also check if the task has finished with the gcloud command.
+You can also check if the job has finished with the gcloud command.
 
 ```
 gcloud beta batch jobs describe transcode --location=us-central1
 ```
 
-The status should look like this when the task has finished successfully.
+The status should look like this when the job has finished successfully.
 
 ```yaml
 status:
@@ -272,7 +272,7 @@ gcloud beta batch jobs delete encode --location=us-central1
 
 ## Clean up the resources
 
-Batch automatically deletes the instances it created for each task, however, you might still be charged for storing the objects in Cloud Storage.
+Batch automatically deletes the instances it created for each job, however, you might still be charged for storing the objects in Cloud Storage.
 Make sure to delete the project you created to avoid incurring charges.
 Deleting your Cloud project stops billing for all the resources used within that project.
 
@@ -280,4 +280,4 @@ Deleting your Cloud project stops billing for all the resources used within that
 gcloud projects delete [PROJECT_ID]
 ```
 
-That's it! You've learned how to define and run Batch tasks on Google Cloud. Congratulations!
+That's it! You've learned how to define and run Batch jobs on Google Cloud. Congratulations!
