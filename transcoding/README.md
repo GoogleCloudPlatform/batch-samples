@@ -66,7 +66,7 @@ The JSON file defines a job with the following specifications:
   - Each task requires 2 vCPUs and 2 GiB of memory.
   - The maximum number of retries is two.
   - The maximum duration is 600 seconds.
-  - Mount [BUCKET_NAME] as /mnt/share.
+  - Mount `[BUCKET_NAME]` as `/mnt/share`.
   - There are three tasks with this specification.
   - Batch should run at most two tasks at the same time.
 - An allocation policy to use spot [n2d-standard-4](https://cloud.google.com/compute/docs/general-purpose-machines) instances to run the tasks.
