@@ -58,7 +58,7 @@ To learn more about creating storage buckets, see the [Cloud Storage documentati
 Batch manages a collection of tasks as a job.
 In this tutorial, you'll create a job that has a task to encode video files with the [VP9 codec](https://developers.google.com/media/vp9).
 
-First, open the [job.json](job.json) file with a text editor and change [BUCKET_NAME] to your bucket name, and save the file.
+First, open the [job.json](job.json) file with a text editor and change `[BUCKET_NAME]` to your bucket name, and save the file.
 
 The JSON file defines a job with the following specifications:
 - A task specification.
@@ -77,7 +77,7 @@ To run the Batch job, you first need to submit it to Batch.
 The following command will submit a job named `transcode` using the definition in `job.json` in the us-central1 region.
 
 ```
-gcloud beta batch jobs submit transcode –location us-central1 –config job.json
+gcloud beta batch jobs submit transcode --location=us-central1 --config=job.json
 ```
 
 The command output should look like the following (note the first line with "Job … was successfully submitted).
@@ -267,7 +267,7 @@ You can open and watch the created video files with the Chrome browser.
 To delete the batch job, run the `gcloud beta batch jobs delete` command.
 
 ```
-gcloud beta batch jobs delete encode --location=us-central1
+gcloud beta batch jobs delete transcode --location=us-central1
 ```
 
 ## Clean up the resources
