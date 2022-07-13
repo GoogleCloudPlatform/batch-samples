@@ -16,13 +16,15 @@
 
 echo "Get the project id"
 PROJECT_ID=$(gcloud config get-value project)
+REGION=us-central1
 
 SERVICE_ACCOUNT=workflows-batch-sa
 WORKFLOW_NAME=batch-primegen
 echo "Deploy the workflow: $WORKFLOW_NAME"
 gcloud workflows deploy $WORKFLOW_NAME \
   --source workflow.yaml \
-  --service-account=$SERVICE_ACCOUNT@$PROJECT_ID.iam.gserviceaccount.com
+  --service-account=$SERVICE_ACCOUNT@$PROJECT_ID.iam.gserviceaccount.com \
+  --location=$REGION
 
 echo "Execute the workflow: $WORKFLOW_NAME"
-gcloud workflows execute $WORKFLOW_NAME
+gcloud workflows execute $WORKFLOW_NAME --location=$REGION
