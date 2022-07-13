@@ -26,8 +26,7 @@ gcloud services enable \
   workflows.googleapis.com
 
 echo "Create a repository for containers"
-#REGION=us-central1
-REGION=europe-north1
+REGION=us-central1
 gcloud artifacts repositories create containers --repository-format=docker --location=$REGION
 
 echo "Build the container"

@@ -1,10 +1,5 @@
 # Batch - prime number generator container
 
-> **Note:** Google Batch service is feature in *preview*.
-> Only allow-listed projects can currently take advantage of it. Please fill the
-> following [form](https://docs.google.com/forms/d/e/1FAIpQLSdfwO0N4oTu14bW3yxJBAak4KMn8qqeArs2NuNBXDrcjG-g5Q/viewform)
-> to get your project allow-listed before attempting this sample.
-
 In this sample, you'll see how to run a prime number generator container as a
 job in Batch service. You will automate the lifecycle of the Batch job using Workflows.
 
@@ -15,11 +10,22 @@ workloads to run at scale.
 
 ## Before you begin
 
+We recommend creating a new project for this tutorial so that it doesn't affect any other existing projects you might have on Google Cloud. It is also easier to clean up resources when you finish.
+
+To create a new project, run:
+
+```
+gcloud projects create [PROJECT_ID]
+```
+
 Make sure your project id is set in gcloud:
 
 ```sh
-gcloud config set project PROJECT_ID
+gcloud config set project [PROJECT_ID]
 ```
+
+Make sure that billing is enabled for your Cloud project.
+Learn how to [check if billing is enabled on a project](https://cloud.google.com/billing/docs/how-to/verify-billing-enabled).
 
 ## Prime number generator container
 
@@ -40,3 +46,26 @@ deletes the job.
 
 Run [test.sh](test.sh) to deploy and then execute the workflow. You can check
 the result of the workflow execution in Google Cloud console.
+
+### Cleanup
+
+To delete the Workflow, run the `gcloud workflows delete` command:
+
+```
+gcloud workflows delete batch-primegen --location=us-central1
+```
+
+`setup.sh` also creates a container repository. To delete this, run:
+
+```
+gcloud artifacts repositories delete container --location=us-central1
+```
+
+Cloud Build uses Cloud Storage to store resources for builds.
+See the [Cloud Storage documentation](https://cloud.google.com/storage/docs/deleting-buckets) to learn how to delete storage buckets.
+
+To delete the project, run the `gcloud projects delete` command:
+
+```
+gcloud projects delete [PROJECT_ID]
+```
