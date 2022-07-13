@@ -17,15 +17,16 @@
 echo "Get the project id"
 PROJECT_ID=$(gcloud config get-value project)
 
-#alias gcurl='curl --header "Content-Type: application/json" --header "Authorization: Bearer $(gcloud auth print-access-token)"'
+gcurl() {
+  curl -s \
+    --header "Content-Type: application/json" \
+    --header "Authorization: Bearer $(gcloud auth print-access-token)" \
+    $@
+}
 
-BATCH_API=batch.googleapis.com/v1alpha1
-#REGION=us-central1
-REGION=europe-north1
+BATCH_API=batch.googleapis.com/v1
+REGION=us-central1
 
 JOB_ID=job-busybox-$RANDOM
 echo "Create and run a job: $JOB_ID"
-curl \
-  --header "Content-Type: application/json" \
-  --header "Authorization: Bearer $(gcloud auth print-access-token)" \
-  --data @job.json https://$BATCH_API/projects/$PROJECT_ID/locations/$REGION/jobs?job_id=$JOB_ID
+gcurl --data @job.json https://$BATCH_API/projects/$PROJECT_ID/locations/$REGION/jobs?job_id=$JOB_ID
