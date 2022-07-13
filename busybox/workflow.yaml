@@ -14,77 +14,77 @@
 main:
   params: [args]
   steps:
-  - init:
-      assign:
-      - projectId: ${sys.get_env("GOOGLE_CLOUD_PROJECT_ID")}
-      - region: "us-central1"
-      - batchApi: "batch.googleapis.com/v1alpha1"
-      - batchApiUrl: ${"https://" + batchApi + "/projects/" + projectId + "/locations/" + region + "/jobs"}
-      - jobId: ${"job-busybox-" + string(int(sys.now()))}
-  - logCreateBatchJob:
-      call: sys.log
-      args:
-        data: ${"Creating and running the batch job " + jobId}
-  - createAndRunBatchJob:
-      call: http.post
-      args:
-        url: ${batchApiUrl}
-        query:
-          job_id: ${jobId}
-        headers:
-          Content-Type: application/json
-        auth:
-          type: OAuth2
-        body:
-          taskGroups:
-          - taskSpec:
-              runnables:
-              - container:
-                  imageUri: busybox
-                  entrypoint: "/bin/sh"
-                  commands:
-                  - "-c"
-                  - 'echo task index: ${BATCH_TASK_INDEX} bucket: ${BUCKET}'
-              environment:
-                variables:
-                  BUCKET: batch-test-bucket
-            taskCount: 3
-          logsPolicy:
-            destination: CLOUD_LOGGING
-      result: createAndRunBatchJobResponse
-  - getJob:
-      call: http.get
-      args:
-        url: ${batchApiUrl + "/" + jobId}
-        auth:
-          type: OAuth2
-      result: getJobResult
-  - logState:
-      call: sys.log
-      args:
-        data: ${"Current job state " + getJobResult.body.status.state}
-  - assertSucceeded:
-      switch:
-        - condition: ${getJobResult.body.status.state == "SUCCEEDED"}
-          next: logDeleteBatchJob
-      next: sleep
-  - sleep:
-      call: sys.sleep
-      args:
-        seconds: 10
-      next: getJob
-  - logDeleteBatchJob:
-      call: sys.log
-      args:
-        data: ${"Deleting the batch job " + jobId}
-  - deleteBatchJob:
-      call: http.delete
-      args:
-        url: ${batchApiUrl + "/" + jobId}
-        auth:
-          type: OAuth2
-      result: deleteBatchJob
-  - returnResult:
-      return:
-        jobId: ${jobId}
-        status: "OK"
+    - init:
+        assign:
+          - projectId: ${sys.get_env("GOOGLE_CLOUD_PROJECT_ID")}
+          - region: "us-central1"
+          - batchApi: "batch.googleapis.com/v1"
+          - batchApiUrl: ${"https://" + batchApi + "/projects/" + projectId + "/locations/" + region + "/jobs"}
+          - jobId: ${"job-busybox-" + string(int(sys.now()))}
+    - logCreateBatchJob:
+        call: sys.log
+        args:
+          data: ${"Creating and running the batch job " + jobId}
+    - createAndRunBatchJob:
+        call: http.post
+        args:
+          url: ${batchApiUrl}
+          query:
+            job_id: ${jobId}
+          headers:
+            Content-Type: application/json
+          auth:
+            type: OAuth2
+          body:
+            taskGroups:
+              - taskSpec:
+                  runnables:
+                    - container:
+                        imageUri: busybox
+                        entrypoint: "/bin/sh"
+                        commands:
+                          - "-c"
+                          - "echo task index: ${BATCH_TASK_INDEX} bucket: ${BUCKET}"
+                taskEnvironments:
+                  variables:
+                    BUCKET: batch-test-bucket
+                taskCount: 3
+            logsPolicy:
+              destination: CLOUD_LOGGING
+        result: createAndRunBatchJobResponse
+    - getJob:
+        call: http.get
+        args:
+          url: ${batchApiUrl + "/" + jobId}
+          auth:
+            type: OAuth2
+        result: getJobResult
+    - logState:
+        call: sys.log
+        args:
+          data: ${"Current job state " + getJobResult.body.status.state}
+    - assertSucceeded:
+        switch:
+          - condition: ${getJobResult.body.status.state == "SUCCEEDED"}
+            next: logDeleteBatchJob
+        next: sleep
+    - sleep:
+        call: sys.sleep
+        args:
+          seconds: 10
+        next: getJob
+    - logDeleteBatchJob:
+        call: sys.log
+        args:
+          data: ${"Deleting the batch job " + jobId}
+    - deleteBatchJob:
+        call: http.delete
+        args:
+          url: ${batchApiUrl + "/" + jobId}
+          auth:
+            type: OAuth2
+        result: deleteBatchJob
+    - returnResult:
+        return:
+          jobId: ${jobId}
+          status: "OK"

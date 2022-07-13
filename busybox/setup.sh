@@ -17,10 +17,13 @@
 echo "Get the project id"
 PROJECT_ID=$(gcloud config get-value project)
 
+echo "Get the current user email"
+USER_EMAIL=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
+
 echo "Enable necessary APIs"
 gcloud services enable batch.googleapis.com
 
 echo "Add batch.jobsAdmin to your user account"
 gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member=user:atameldev@gmail.com \
+  --member=user:$USER_EMAIL \
   --role=roles/batch.jobsAdmin
