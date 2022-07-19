@@ -50,15 +50,31 @@ main:
             type: OAuth2
           body:
             taskGroups:
-                # Run 4 tasks on 2 VMs
-              - taskCount: '4'
-                parallelism: '2'
-                taskSpec:
-                  runnables:
-                    - container:
-                        imageUri: ${imageUri}
-                taskEnvironments:
-                  variables:
+              taskSpec:
+                runnables:
+                  - container:
+                      imageUri: ${imageUri}
+                # Alternate way of setting env variables to all tasks
+                # If environments is set, taskCount has to be set as well
+                # environments:
+                #     BUCKET: ${bucket}
+              # Run 6 tasks on 2 VMs
+              # Task count is determined by the length of the task environments
+              # Only set taskCount, if you're using environments and not taskEnvironments
+              # taskCount: 6
+              parallelism: 2
+              taskEnvironments:
+                - variables:
+                    BUCKET: ${bucket}
+                - variables:
+                    BUCKET: ${bucket}
+                - variables:
+                    BUCKET: ${bucket}
+                - variables:
+                    BUCKET: ${bucket}
+                - variables:
+                    BUCKET: ${bucket}
+                - variables:
                     BUCKET: ${bucket}
             logsPolicy:
               destination: CLOUD_LOGGING
