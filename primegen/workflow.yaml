@@ -50,14 +50,32 @@ main:
             type: OAuth2
           body:
             taskGroups:
-              - taskSpec:
-                  runnables:
-                    - container:
-                        imageUri: ${imageUri}
-                taskEnvironments:
-                  variables:
+              taskSpec:
+                runnables:
+                  - container:
+                      imageUri: ${imageUri}
+                # Alternate way of setting env variables to all tasks
+                # If environments is set, taskCount has to be set as well
+                # environments:
+                #     BUCKET: ${bucket}
+              # Run 6 tasks on 2 VMs
+              # Task count is determined by the length of the task environments
+              # Only set taskCount, if you're using environments and not taskEnvironments
+              # taskCount: 6
+              parallelism: 2
+              taskEnvironments:
+                - variables:
                     BUCKET: ${bucket}
-                taskCount: 5
+                - variables:
+                    BUCKET: ${bucket}
+                - variables:
+                    BUCKET: ${bucket}
+                - variables:
+                    BUCKET: ${bucket}
+                - variables:
+                    BUCKET: ${bucket}
+                - variables:
+                    BUCKET: ${bucket}
             logsPolicy:
               destination: CLOUD_LOGGING
         result: createAndRunBatchJobResponse
@@ -75,7 +93,7 @@ main:
     - checkState:
         switch:
           - condition: ${getJobResult.body.status.state == "SUCCEEDED"}
-            next: logDeleteBatchJob
+            next: returnResult
           - condition: ${getJobResult.body.status.state == "FAILED"}
             next: deleteBucket
         next: sleep
@@ -92,24 +110,20 @@ main:
         call: sys.log
         args:
           data: ${"Deleted bucket " + bucket}
-    - logDeleteBatchJob:
-        call: sys.log
-        args:
-          data: ${"Deleting the batch job " + jobId}
-    - deleteBatchJob:
-        call: http.delete
-        args:
-          url: ${batchApiUrl + "/" + jobId}
-          auth:
-            type: OAuth2
-        result: deleteBatchJob
-    - failOrReturnResult:
-        switch:
-          - condition: ${getJobResult.body.status.state == "SUCCEEDED"}
-            next: returnResult
-          - condition: ${getJobResult.body.status.state == "FAILED"}
-            next: failExecution
-        next: sleep
+        next: failExecution
+    # You can delete the batch job if you wish or keep it
+    # around for debugging purposes
+    # - logDeleteBatchJob:
+    #     call: sys.log
+    #     args:
+    #       data: ${"Deleting the batch job " + jobId}
+    # - deleteBatchJob:
+    #     call: http.delete
+    #     args:
+    #       url: ${batchApiUrl + "/" + jobId}
+    #       auth:
+    #         type: OAuth2
+    #     result: deleteBatchJob
     - returnResult:
         return:
           jobId: ${jobId}
