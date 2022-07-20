@@ -46,9 +46,12 @@ main:
                           - "-c"
                           - "echo task index: ${BATCH_TASK_INDEX} bucket: ${BUCKET}"
                 taskEnvironments:
-                  variables:
-                    BUCKET: batch-test-bucket
-                taskCount: 3
+                  - variables:
+                      BUCKET: batch-test-bucket
+                  - variables:
+                      BUCKET: batch-test-bucket
+                  - variables:
+                      BUCKET: batch-test-bucket
             logsPolicy:
               destination: CLOUD_LOGGING
         result: createAndRunBatchJobResponse

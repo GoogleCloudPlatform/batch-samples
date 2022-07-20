@@ -10,11 +10,13 @@ workloads to run at scale.
 
 ## Before you begin
 
-We recommend creating a new project for this tutorial so that it doesn't affect any other existing projects you might have on Google Cloud. It is also easier to clean up resources when you finish.
+We recommend creating a new project for this tutorial so that it doesn't affect
+any other existing projects you might have on Google Cloud. It is also easier to
+clean up resources when you finish.
 
 To create a new project, run:
 
-```
+```sh
 gcloud projects create [PROJECT_ID]
 ```
 
@@ -64,19 +66,19 @@ To delete the Batch jobs you created, use the `gcloud beta batch jobs delete` co
 
 The following one-liner deletes all jobs containing "job-busybox-" in the names in the us-central1 region.
 
-```
+```sh
 gcloud beta batch jobs list us-central1 --format="value(name)" | grep job-busybox- \
  | xargs -L1 gcloud beta batch jobs delete --location=us-central1
 ```
 
 To delete the Workflow, run the `gcloud workflows delete` command:
 
-```
+```sh
 gcloud workflows delete batch-busybox --location=us-central1
 ```
 
 To delete the project, run the `gcloud projects delete` command:
 
-```
+```sh
 gcloud projects delete [PROJECT_ID]
 ```

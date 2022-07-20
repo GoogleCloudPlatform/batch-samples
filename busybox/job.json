@@ -15,12 +15,23 @@
           }
         ]
       },
-      "taskCount": 3,
-      "taskEnvironments": {
-        "variables": {
-          "BUCKET": "batch-test-bucket"
+      "taskEnvironments": [
+        {
+          "variables": {
+            "BUCKET": "batch-test-bucket"
+          }
+        },
+        {
+          "variables": {
+            "BUCKET": "batch-test-bucket"
+          }
+        },
+        {
+          "variables": {
+            "BUCKET": "batch-test-bucket"
+          }
         }
-      }
+      ]
     }
   ],
   "logsPolicy": {
