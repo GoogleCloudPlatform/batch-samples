@@ -1,0 +1,37 @@
+{
+  "taskGroups":[{
+    "task_spec":{
+      "runnables":[
+        { "barrier": {} },
+        {
+          "script": {
+            "path":"/mnt/share/batch/runsim.sh"
+          }
+        },
+        { "barrier": {} }
+      ],
+      "volumes":[{
+        "nfs":{
+          "server":"<YOUR FILESTORE IP ADDRESS>",
+          "remote_path": "<YOUR FILESTORE PATH>"
+        },
+        "mount_path": "/mnt/share"
+      }]
+    },
+    "task_count":4,
+    "task_count_per_node": 1,
+    "require_hosts_file": true,
+    "permissive_ssh": true
+  }],
+  "allocation_policy": {
+    "instances": [{
+      "instance_template": "projects/<YOUR PROJECT ID>/global/instanceTemplates/wrf-worker"
+    }],
+    "location": {
+      "allowed_locations": [ "regions/us-central1", "zones/us-central1-a" ]
+    }
+  },
+  "logs_policy": {
+    "destination": "CLOUD_LOGGING"
+  }
+}
