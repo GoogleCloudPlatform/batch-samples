@@ -11,27 +11,16 @@
                 "-c",
                 "echo task index: ${BATCH_TASK_INDEX} bucket: ${BUCKET}"
               ]
+            },
+            "environment": {
+              "variables": {
+                "BUCKET": "batch-test-bucket"
+              }
             }
           }
         ]
       },
-      "taskEnvironments": [
-        {
-          "variables": {
-            "BUCKET": "batch-test-bucket"
-          }
-        },
-        {
-          "variables": {
-            "BUCKET": "batch-test-bucket"
-          }
-        },
-        {
-          "variables": {
-            "BUCKET": "batch-test-bucket"
-          }
-        }
-      ]
+      "taskCount": 3
     }
   ],
   "logsPolicy": {
