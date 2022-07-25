@@ -7,6 +7,9 @@ This repository contains step-by-step tutorials and code samples to learn how to
 - [transcoding](transcoding): Quickstart tutorial of transcoding videos using Batch.
 - [busybox](busybox): A simple sample to run a container as a Batch job.
 - [primegen](primegen): An end-to-end sample of using Workflows and Cloud Build with Batch to automate the lifecycle of Batch jobs.
+- [wrf](wrf): A sample for running the [Weather Research and Forecasting
+  Model](https://www.mmm.ucar.edu/weather-research-and-forecasting-model) in a
+  Batch Job with MPI.
 
 # About Batch
 
