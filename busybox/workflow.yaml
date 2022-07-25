@@ -45,9 +45,9 @@ main:
                         commands:
                           - "-c"
                           - "echo task index: ${BATCH_TASK_INDEX} bucket: ${BUCKET}"
-                taskEnvironments:
-                  variables:
-                    BUCKET: batch-test-bucket
+                      environment:
+                        variables:
+                          BUCKET: batch-test-bucket
                 taskCount: 3
             logsPolicy:
               destination: CLOUD_LOGGING
