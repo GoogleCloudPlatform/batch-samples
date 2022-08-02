@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# [START workflows_batch_primegen]
 main:
   params: [args]
   steps:
@@ -95,8 +96,7 @@ main:
         args:
           data: ${"Deleted bucket " + bucket}
         next: failExecution
-    # You can delete the batch job if you wish or keep it
-    # around for debugging purposes
+    # You can delete the batch job or keep it for debugging
     # - logDeleteBatchJob:
     #     call: sys.log
     #     args:
@@ -115,3 +115,4 @@ main:
     - failExecution:
         raise:
           message: ${"The underlying batch job " + jobId + " failed"}
+# [END workflows_batch_primegen]
