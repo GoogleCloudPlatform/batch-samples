@@ -1,8 +1,8 @@
 # Compressing with Batch
-## What's this
+## What's this?
 Based on [Transcoding with Batch](https://github.com/GoogleCloudPlatform/batch-samples/tree/main/transcoding), added a handy script with PDF compressing example.
 
-The starter script generates the required file from templates and submits the job to the Batch. You don't need to care filename or number of files. Process all PDF files in your bucket with Batch.
+The starter script generates necessary files from templates and submits the job to the Batch. Process all PDF files in your bucket with Batch. You don't need to care filename or number of files.
 
 ## Usage
 Enable Batch API.
@@ -16,7 +16,7 @@ Create and set a project if you need.
 gcloud projects create [PROJECT_ID]
 gcloud config set project [PROJECT_ID]
 ```
-Make a bucket and copy example files there.
+Make a bucket and copy `input` directory there.
 
 ```
 gsutil mb -p [PROJECT_ID] -b on -l US gs://[BUCKET_NAME]
@@ -30,16 +30,15 @@ Edit `starter.sh` and replace `[BUCKET_NAME]` with your bucket name.
 
 BUCKET_NAME="[BUCKET_NAME]"
 ```
+Run `starter.sh`.
 
-`envsubst` is needed. It is in the `gettext` package if you have not installed it.
-
-Run `starter.sh` when you are ready.
+Note: `envsubst` is used in the script. If `which envsubst` does not return the command path, try installing `gettext` package first.
 
 ```
 bash starter.sh
 ```
 
-All done! PDF files are now in the queue and will be compressed by Batch shortly. You can check the status in the cloud console and results in `gs://[BUCKET_NAME]/output`.
+All done! PDF files are in the queue and will be compressed by Batch shortly. You can see job name and status in the Cloud Console as well. The compressed PDF will be in `gs://[BUCKET_NAME]/output`.
 
 ## What starter.sh do for you
 * Find PDF files in the bucket.
@@ -48,14 +47,20 @@ All done! PDF files are now in the queue and will be compressed by Batch shortly
 * Submit the Batch job to the Google Cloud.
 
 ### Generate compressing script for each PDF file.
-This is the line from `job.json`. You can see what happens when each task starts.
+`job.json` describes the task executed by Batch.
 
 ```json
 "script": {
   "text": "bash /mnt/share/input/task${BATCH_TASK_INDEX}.sh"
 }
 ```
-Batch runs multiple tasks in parallel. Each task has `${BATCH_TASK_INDEX}`. It is from 0 to the number of tasks. In this case, Batch runs task0.sh, task1.sh... until the last task.
+```
+"taskCount": 3,
+```
+
+In the above example, task0.sh task1.sh task2.sh will be executed. Each task has `${BATCH_TASK_INDEX}`. It is from 0 to the number of `taskCount`.
+
+`starter.sh` generate task.sh files while hard-coding PDF filename.
 
  ```sh
 ### Create task.sh files
@@ -72,7 +77,7 @@ done
 
 gsutil -m cp $temp_dir/task*.sh gs://$BUCKET_NAME/input/
 ```
-`starter.sh` generate task.sh file with hard-coded filenames in it. After run script, `gs://[BUCKET_NAME]/input` will be like this.
+After run script, `gs://[BUCKET_NAME]/input` will be like this.
 
  ```
 input
@@ -83,17 +88,19 @@ input
 ......
 ```
 
-This is the generated task file. You can edit `task.sh.template` for your own purpose.
+This is the generated task file.
 
 ```
-$ gsutil cat gs://[BUCKET_NAME]/input/task0.sh
+gsutil cat gs://[BUCKET_NAME]/input/task0.sh
+```
 
+```sh
 #!/bin/bash
 
 sudo apt-get -y update
 sudo apt-get -y install ghostscript
 
-filename=photobook-a.pdf
+filename=photobook-a.pdf #filename is inserted from the template.
 
 dir=/mnt/share
 infile=$dir/input/$filename
@@ -103,6 +110,11 @@ vopts="-sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE
 mkdir -p $dir/output
 gs $vopts -sOutputFile=$outfile $infile
 ```
+
+
+The key point is that `starter.sh` passes `$FILE_NAME` to `task.sh.template` and generated `task0.sh` with the PDF file name in it. In the result, Batch executes `task${BATCH_TASK_INDEX}.sh` one after another to compress each PDF file.
+
+You can edit `task.sh.template` for your purpose.
 
 ### Generate job.json
 ``` sh
@@ -114,6 +126,7 @@ cat job.json.template | envsubst '$BUCKET_NAME $TASK_COUNT'> $temp_dir/job.json
 ```
 Generate job.json from the template. `$TASK_COUNT` decides how many tasks Batch processes in a job. So tell Batch the number of the task files in the bucket.
 
+If you want to change parameters such as machine type, running duration, and the number of tasks in parallel, edit `job.json.template`.
 
 ### Submit the job
 ``` sh
@@ -125,5 +138,4 @@ gcloud beta batch jobs submit pdf-compression_${date} --location=us-central1 --c
 
 Submit the job to Batch. The job name has to be unique, so add the submitting date here.
 
-
-
+This is the whole process of getting file names, generating the necessary files, and submitting the jobs to Batch.
