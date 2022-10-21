@@ -14,8 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-echo "Get the project id"
-PROJECT_ID=$(gcloud config get-value project)
+source config.sh
 
 echo "Enable necessary APIs"
 gcloud services enable \
@@ -26,25 +25,34 @@ gcloud services enable \
   workflows.googleapis.com
 
 echo "Create a repository for containers"
-REGION=us-central1
 gcloud artifacts repositories create containers --repository-format=docker --location=$REGION
 
 echo "Build the container"
 gcloud builds submit -t $REGION-docker.pkg.dev/$PROJECT_ID/containers/primegen-service:v1 PrimeGenService/
 
-SERVICE_ACCOUNT=workflows-batch-sa
 echo "Create a service account: $SERVICE_ACCOUNT for Workflows"
 gcloud iam service-accounts create $SERVICE_ACCOUNT
 
 echo "Add necessary roles to the service account"
+
+# Needed for Workflows to create Jobs
+# See https://cloud.google.com/batch/docs/release-notes#October_03_2022
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member serviceAccount:$SERVICE_ACCOUNT@$PROJECT_ID.iam.gserviceaccount.com \
-    --role roles/batch.jobsAdmin
+    --role roles/batch.jobsEditor
 
+# Needed for Workflows to submit Jobs
+# See https://cloud.google.com/batch/docs/release-notes#October_03_2022
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member serviceAccount:$SERVICE_ACCOUNT@$PROJECT_ID.iam.gserviceaccount.com \
+    --role roles/iam.serviceAccountUser
+
+# Needed for Workflows to create buckets
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member serviceAccount:$SERVICE_ACCOUNT@$PROJECT_ID.iam.gserviceaccount.com \
     --role roles/storage.admin
 
+# Need for Workflows to log
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member serviceAccount:$SERVICE_ACCOUNT@$PROJECT_ID.iam.gserviceaccount.com \
     --role roles/logging.logWriter
