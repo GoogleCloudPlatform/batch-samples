@@ -14,14 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-source config.sh
-
-WORKFLOW_NAME=batch-primegen
-echo "Deploy the workflow: $WORKFLOW_NAME"
-gcloud workflows deploy $WORKFLOW_NAME \
-  --source workflow.yaml \
-  --service-account=$SERVICE_ACCOUNT@$PROJECT_ID.iam.gserviceaccount.com \
-  --location=$REGION
-
-echo "Run the workflow: $WORKFLOW_NAME"
-gcloud workflows run $WORKFLOW_NAME --location=$REGION
+export PROJECT_ID=$(gcloud config get-value project)
+export REGION=us-central1
+export SERVICE_ACCOUNT=workflows-batch-sa
