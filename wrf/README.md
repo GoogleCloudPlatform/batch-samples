@@ -7,8 +7,7 @@ We'll use the [Google Cloud CLI](https://cloud.google.com/sdk/gcloud) (gcloud) t
 ## Before you start
 
 1. [Install](https://cloud.google.com/sdk/docs/install) and [initialize](https://cloud.google.com/sdk/docs/initializing) the Google Cloud CLI.
-2. Instal the beta component to the gcloud command (run `gcloud components install beta`).
-3. Make sure that billing is enabled for your Cloud project. Learn how to [check if billing is enabled on a project](https://cloud.google.com/billing/docs/how-to/verify-billing-enabled).
+. Make sure that billing is enabled for your Cloud project. Learn how to [check if billing is enabled on a project](https://cloud.google.com/billing/docs/how-to/verify-billing-enabled).
 
 ## Create a new project
 
@@ -197,11 +196,11 @@ This Job has a few special properties to facilitate running MPI:
 With `job.json` copied to your console VM (or your mounted Filestore), and the Filestore IP and path, and project ID filled in, the Job can be run with
 
 ```
-gcloud beta batch jobs submit wrfmpi --location=us-central1 --config=job.json
+gcloud batch jobs submit wrfmpi --location=us-central1 --config=job.json
 ```
 
 The Job should be completed in about 25 minutes, and can be checked with
 
 ```
-gcloud beta batch jobs describe projects/<YOUR PROJECT>/locations/us-central1/jobs/wrfmpi
+gcloud batch jobs describe projects/<YOUR PROJECT>/locations/us-central1/jobs/wrfmpi
 ```
