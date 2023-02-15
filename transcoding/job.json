@@ -5,7 +5,7 @@
         "runnables": [
           {
             "script": {
-              "text": "bash /mnt/share/transcode.sh"
+              "text": "bash /mnt/disks/share/transcode.sh"
             }
           }
         ],
@@ -18,7 +18,7 @@
             "gcs": {
               "remotePath": "[BUCKET_NAME]"
             },
-            "mountPath": "/mnt/share"
+            "mountPath": "/mnt/disks/share"
           }
         ],
         "maxRetryCount": 2,
