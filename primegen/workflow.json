@@ -14,12 +14,6 @@
               "region": "us-central1"
             },
             {
-              "batchApi": "batch.googleapis.com/v1"
-            },
-            {
-              "batchApiUrl": "${\"https://\" + batchApi + \"/projects/\" + projectId + \"/locations/\" + region + \"/jobs\"}"
-            },
-            {
               "imageUri": "${region + \"-docker.pkg.dev/\" + projectId + \"/containers/primegen-service:v1\"}"
             },
             {
@@ -62,18 +56,10 @@
       },
       {
         "createAndRunBatchJob": {
-          "call": "http.post",
+          "call": "googleapis.batch.v1.projects.locations.jobs.create",
           "args": {
-            "url": "${batchApiUrl}",
-            "query": {
-              "job_id": "${jobId}"
-            },
-            "headers": {
-              "Content-Type": "application/json"
-            },
-            "auth": {
-              "type": "OAuth2"
-            },
+            "parent": "${\"projects/\" + projectId + \"/locations/\" + region}",
+            "jobId": "${jobId}",
             "body": {
               "taskGroups": {
                 "taskSpec": {
@@ -102,64 +88,20 @@
         }
       },
       {
-        "getJob": {
-          "call": "http.get",
-          "args": {
-            "url": "${batchApiUrl + \"/\" + jobId}",
-            "auth": {
-              "type": "OAuth2"
-            }
-          },
-          "result": "getJobResult"
-        }
-      },
-      {
-        "logState": {
+        "logDeleteBatchJob": {
           "call": "sys.log",
           "args": {
-            "data": "${\"Current job state \" + getJobResult.body.status.state}"
+            "data": "${\"Deleting the batch job \" + jobId}"
           }
         }
       },
       {
-        "checkState": {
-          "switch": [
-            {
-              "condition": "${getJobResult.body.status.state == \"SUCCEEDED\"}",
-              "next": "returnResult"
-            },
-            {
-              "condition": "${getJobResult.body.status.state == \"FAILED\"}",
-              "next": "deleteBucket"
-            }
-          ],
-          "next": "sleep"
-        }
-      },
-      {
-        "sleep": {
-          "call": "sys.sleep",
+        "deleteBatchJob": {
+          "call": "googleapis.batch.v1.projects.locations.jobs.delete",
           "args": {
-            "seconds": 10
+            "name": "${\"projects/\" + projectId + \"/locations/\" + region + \"/jobs/\" + jobId}"
           },
-          "next": "getJob"
-        }
-      },
-      {
-        "deleteBucket": {
-          "call": "googleapis.storage.v1.buckets.delete",
-          "args": {
-            "bucket": "${bucket}"
-          }
-        }
-      },
-      {
-        "logDeleteBucket": {
-          "call": "sys.log",
-          "args": {
-            "data": "${\"Deleted bucket \" + bucket}"
-          },
-          "next": "failExecution"
+          "result": "deleteResult"
         }
       },
       {
@@ -167,13 +109,6 @@
           "return": {
             "jobId": "${jobId}",
             "bucket": "${bucket}"
-          }
-        }
-      },
-      {
-        "failExecution": {
-          "raise": {
-            "message": "${\"The underlying batch job \" + jobId + \" failed\"}"
           }
         }
       }
