@@ -1,0 +1,27 @@
+{
+    "taskGroups": [
+        {
+            "taskSpec": {
+                "runnables": [
+                    {
+                        "script": {
+                            "text": "echo Hello world from task ${BATCH_TASK_INDEX}. >> ${MOUNT_PATH}/${SUB_FOLDER}/output_task_${BATCH_TASK_INDEX}.txt"
+                        }
+                    }
+                ],
+                "volumes": [
+                    {
+                        "gcs": {
+                            "remotePath": "${BUCKET_PATH}"
+                        },
+                        "mountPath": "${MOUNT_PATH}"
+                    }
+                ]
+            },
+            "taskCount": 3
+        }
+    ],
+    "logsPolicy": {
+            "destination": "CLOUD_LOGGING"
+    }
+}
