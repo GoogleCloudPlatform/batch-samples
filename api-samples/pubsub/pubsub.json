@@ -1,0 +1,37 @@
+{
+  "taskGroups": [
+    {
+      "taskSpec": {
+        "runnables": [
+          {
+            "container": {
+              "imageUri": "busybox",
+              "entrypoint": "/bin/sh",
+              "commands": ["-c", "echo task ${BATCH_TASK_INDEX} of ${BATCH_TASK_COUNT}"]
+            }
+          }
+        ]
+      },
+      "taskCount": 4,
+      "parallelism": 2
+    }
+  ],
+  "notifications": [
+    {
+      "pubsub_topic": "projects/${ProjectID}/topics/${JobStateTopic}",
+      "message": {
+        "type": "JOB_STATE_CHANGED"
+      }
+    },
+    {
+      "pubsub_topic": "projects/${ProjectID}/topics/${TaskStateTopic}",
+      "message": {
+        "type": "TASK_STATE_CHANGED",
+        "newTaskState": "FAILED"
+      }
+    }
+  ],
+  "logsPolicy": {
+    "destination": "CLOUD_LOGGING"
+  }
+}
