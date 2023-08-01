@@ -38,7 +38,7 @@ gcloud services enable batch.googleapis.com
 ```
 
 ## Create the Filestore
-Go to the [Filestore Instances](https://pantheon.corp.google.com/filestore/instances) page and create an SSD Filestore. Default size and settings are fine. Once it's allocated take note of its Location (e.g. us-central1-a) because we'll restrict Batch Nodes to that same location.
+Go to the [Filestore Instances](https://console.cloud.google.com/filestore/instances) page and create an SSD Filestore. Default size and settings are fine. Once it's allocated take note of its Location (e.g. us-central1-a) because we'll restrict Batch Nodes to that same location.
 
 ## Create the console machine
 The Nodes of our Batch Job will run the CentOS 7 based HPC VM Image. Our console machine doesn't technically need to match those Nodes, but doing so simplifies our setup process a little.
