@@ -5,10 +5,9 @@
     "taskSpec": {
       "runnables": [{
         "container": {
-          "imageUri": "us-central1-docker.pkg.dev/test-project/my-repository/torchx:latest",
-          "commands": ["-c", "print(\"Hello World\")"],
-          "entrypoint": "python",
-          "volumes": ["/var/lib/google:/var/lib/google:rw"],
+          "imageUri": "${Location}-docker.pkg.dev/${ProjectID}/${RepositoryName}/${Image}",
+          "commands": ["10m"],
+          "entrypoint": "sleep",
           "enableImageStreaming": true
         }
       }]

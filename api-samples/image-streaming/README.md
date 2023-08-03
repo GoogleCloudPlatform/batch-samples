@@ -14,7 +14,7 @@ short-lived.
 
 ## Limitations
 * The feature is only available in v1alpha.
-* Users must not specify image streaming and docker containers in the same task group.
+* Users must not specify image streaming and docker containers in the same job.
 * When users enable image streaming, only **imageUri, commands, entrypoint and
 volumes** are supported in the Container proto. All other fields are ignored.
 * The AR repository must be in the same region as Cloud Batch VMs,
@@ -29,4 +29,4 @@ However, after Image streaming caches the image, future image pulls on any jobs 
 ### image_streaming_simple_job.json
 This is a simple job that shows how to use image streaming with Batch.
 As you can see, currently there is no big difference from using docker container.
-This example job uses torchx image and prints "Hello World".
+This example job uses debian image and sleeps for some time.
