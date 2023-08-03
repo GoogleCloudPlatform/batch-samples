@@ -11,6 +11,7 @@ This directory contains samples of Batch related GCP [workflows](https://cloud.g
 ## Samples
 ### export-to-bigquery-delete-batch-jobs
 * This workflow will try to create big query dataset and table, it then will export the jobs into the big query table and delete the exported jobs. 
+* To run this workflow, the proper IAM roles should be granted to work with Big Query, for more details, please refer to [BigQuery permissions and predefined IAM roles](https://cloud.google.com/bigquery/docs/access-control#permissions-predefined-roles).
 * The arguments of the workflow are:
   * project
   * location
