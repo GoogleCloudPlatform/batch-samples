@@ -1,0 +1,25 @@
+{
+  "taskGroups": [
+      {
+          "taskSpec": {
+              "runnables": [
+                  {
+                      "script": {
+                          "text": "echo Hello World! This is task ${BATCH_TASK_INDEX}."
+                      }
+                  }
+              ]
+          }
+      }
+  ],
+  "allocationPolicy": {
+      "serviceAccount": {
+          "email": "${ServiceAccountEmail}"
+      },
+      "instances": [
+        {
+          "instanceTemplate": "${InstanceTemplateWithSA}"
+        }
+      ]
+  }
+}
