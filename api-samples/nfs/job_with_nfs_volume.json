@@ -1,0 +1,28 @@
+{
+    "taskGroups": [
+        {
+            "taskSpec": {
+                "runnables": [
+                    {
+                        "script": {
+                            "text": "echo hello world >> ${MOUNT_PATH}/output_task_${BATCH_TASK_INDEX}.txt"
+                        }
+                    }
+                ],
+                "volumes": [
+                    {
+                        "nfs": {
+                            "server": "${SERVER}",
+                            "remotePath": "${REMOTE_PATH}"
+                        },
+                        "mountPath": "${MOUNT_PATH}"
+                    }
+                ]
+            },
+            "taskCount": 2
+        }
+    ],
+    "logsPolicy": {
+        "destination": "CLOUD_LOGGING"
+    }
+}
