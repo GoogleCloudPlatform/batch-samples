@@ -1,0 +1,49 @@
+{
+    "taskGroups": [
+        {
+            "taskSpec": {
+                "runnables": [
+                    {
+                        "script": {
+                            "text": "echo hello world >> ${MOUNT_PATH}/output_task_${BATCH_TASK_INDEX}.txt"
+                        }
+                    }
+                ],
+                "volumes": [
+                    {
+                        "deviceName": "${DEVICE_NAME}",
+                        "mountPath": "${MOUNT_PATH}",
+                        "mountOptions": "${MOUNT_OPTIONS}"
+                    }
+                ]
+            },
+            "taskCount": 3
+        }
+    ],
+    "allocationPolicy": {
+        "instances": [
+            {
+                "policy": {
+                    "disks": [
+                        {
+                            "newDisk": {
+                                "sizeGb": "${NEW_DISK_SIZE}",
+                                "type": "${NEW_DISK_TYPE}"
+                            },
+                            "deviceName": "${DEVICE_NAME}"
+                        }
+                    ]
+                }
+            }
+        ],
+        "location": {
+            "allowedLocations": [
+                "${ALLOWED_REGION}",
+                "${ALLOWED_ZONE}"
+            ]
+        }
+    },
+    "logsPolicy": {
+        "destination": "CLOUD_LOGGING"
+    }
+}
