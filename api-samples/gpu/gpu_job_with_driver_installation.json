@@ -1,0 +1,41 @@
+{
+    "taskGroups": [
+        {
+            "taskSpec": {
+                "runnables": [
+                    {
+                        "script": {
+                            "text": "echo hello world >> output_task_${BATCH_TASK_INDEX}.txt"
+                        }
+                    }
+                ]
+            },
+            "taskCount": 3,
+            "parallelism": 1
+        }
+    ],
+    "allocationPolicy": {
+        "instances": [
+            {
+                "installGpuDrivers": ${INSTALL_GPU_DRIVERS},
+                "policy": {
+                    "machineType": "${MACHINE_TYPE}",
+                    "accelerators": [
+                        {
+                            "type": "${GPU_TYPE}",
+                            "count": "${GPU_COUNT}"
+                        }
+                    ]
+                }
+            }
+        ],
+        "location": {
+            "allowedLocations": [
+                "${ALLOWED_LOCATION}"
+            ]
+        }
+    },
+    "logsPolicy": {
+        "destination": "CLOUD_LOGGING"
+    }
+}
