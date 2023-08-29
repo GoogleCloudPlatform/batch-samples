@@ -14,10 +14,13 @@ source ../env.sh
 REMOTE_PATH=my-bucket-name
 # Mount path.
 MOUNT_PATH=/mnt/disks/gcs
+# Mount options. Availble options can be found here: https://cloud.google.com/storage/docs/gcsfuse-cli.
+# You can have multiple mount options by adding elements to the mountOptions list in job_with_gcs_volume.json.
+MOUNT_OPTIONS="--max-conns-per-host 200"
 
 # Turn OFF the allexport option
 set +o allexport
 
 gcloud batch jobs submit --job-prefix=gcs --location=${Location} --project=${ProjectID} --config - <<EOF
-$(envsubst '$REMOTE_PATH','$MOUNT_PATH' < ./job_with_gcs_volume.json)
+$(envsubst '$REMOTE_PATH','$MOUNT_PATH','$MOUNT_OPTIONS' < ./job_with_gcs_volume.json)
 EOF

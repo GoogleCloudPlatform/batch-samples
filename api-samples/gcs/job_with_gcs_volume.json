@@ -14,7 +14,10 @@
                         "gcs": {
                             "remotePath": "${REMOTE_PATH}"
                         },
-                        "mountPath": "${MOUNT_PATH}"
+                        "mountPath": "${MOUNT_PATH}",
+                        "mountOptions": [
+                            "${MOUNT_OPTIONS}"
+                        ]
                     }
                 ]
             },
