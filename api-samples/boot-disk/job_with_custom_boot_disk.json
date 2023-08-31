@@ -1,0 +1,31 @@
+{
+  "taskGroups": [
+      {
+        "taskSpec": {
+          "runnables": [
+            {
+              "script": {
+                "text":"echo hello world from task ${BATCH_TASK_INDEX}."
+              }
+            }
+          ]
+        }
+     }
+  ],
+  "allocationPolicy": {
+    "instances": [
+      {
+        "policy": {
+          "bootDisk": {
+            "image": "${BootDiskImage}",
+            "sizeGb": "${BootDiskSize}",
+            "type": "${BootDiskType}"
+          }
+        }
+      }
+    ]
+  },
+  "logsPolicy": {
+    "destination": "CLOUD_LOGGING"
+  }
+}
