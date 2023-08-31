@@ -1,0 +1,67 @@
+substitutions:
+  # UPDATE TO MATCH YOUR SETTINGS.
+  # Variables for custom Container-Optimized (COS) image sample.
+  # --------------------------------------------
+  # Image name for your custom built image.
+  # Image name needs to be unique in the project.
+  _IMAGE_NAME: "batch-cos-image"
+  # Image family for your custom built image.
+  _IMAGE_FAMILY: ""
+  # Image project id your custom image builds based on.
+  # Base image with COS image OS type,
+  # such as Google standard COS image from project cos-cloud.
+  # or Batch's latest COS image from project batch-custom-image.
+  _SOURCE_IMAGE_PROJECT_ID: "cos-cloud"
+  # Image family that your custom image builds based on.
+  # If you build image based on "cos-cloud" project, we recommend image family as "cos-stable".
+  # If you build image based on "batch-custom-image" project,
+  # we recommend image family as "batch-cos-stable-official"
+  _SOURCE_IMAGE_FAMILY: "cos-stable"
+  # Machine type for you image building VM.
+  # Any machine type that supports GPU is acceptable.
+  _MACHINE_TYPE: "n1-standard-1"
+  # Disk size for your custom built image.
+  _DISK_SIZE: "30"
+  # Zone for your image building VM.
+  _ZONE: "us-central1-b"
+  # GPU Type for your image building VM.
+  # Any type inside `gcloud compute accelerator-types list` is acceptable.
+  _GPU_TYPE: "nvidia-tesla-t4"
+  # -----------------------------------------------------------
+  # Below are the Boolean flags for Batch required package installation.
+  # The Boolean flag indicating whether to install the GCSFuse in this image.
+  # Batch does not support standard COS image due to COS image's immutable file system limitation.
+  # Therefore, pre-installing the GCS related package is required for COS based images.
+  _INSTALL_GCS_PACKAGES: "true"
+  # The Boolean flag indicating whether to install Batch's Cloud Batch Agent in this image.
+  # Batch does not support standard COS image due to COS image's immutable file system limitation.
+  # Therefore, pre-installing the Cloud Batch Agent is required for COS based images.
+  _INSTALL_CLOUD_BATCH_AGENT: "true"
+  # The Boolean flag indicating whether to install the GPU related packages in this image.
+  # For COS VMs, additional preceding command is required to be run on every VM reboot to configure GPU drivers,
+  # detail in https://cloud.google.com/container-optimized-os/docs/how-to/run-gpus?#verify_the_installation.
+  # Since the image build process needs VM rebooting, we by default disable the installation.
+  _INSTALL_GPU_PACKAGES: "false"
+
+steps:
+- name: 'gcr.io/cos-cloud/cos-customizer'
+  args: ['start-image-build',
+         '-image-family=${_SOURCE_IMAGE_FAMILY}',
+         '-image-project=${_SOURCE_IMAGE_PROJECT_ID}',
+         '-gcs-bucket=${PROJECT_ID}_cloudbuild',
+         '-gcs-workdir=image-build-$BUILD_ID']
+- name: 'gcr.io/cos-cloud/cos-customizer'
+  args: ['run-script',
+         '-script=batch_cos_image_packages.sh',
+         '-env=install_gcs_packages=${_INSTALL_GCS_PACKAGES},install_gpu_packages=${_INSTALL_GPU_PACKAGES},install_agent_packages=${_INSTALL_CLOUD_BATCH_AGENT}']
+- name: 'gcr.io/cos-cloud/cos-customizer'
+  args: ['finish-image-build',
+         '-zone=${_ZONE}',
+         '-project=$PROJECT_ID',
+         '-machine-type=${_MACHINE_TYPE}',
+         '-gpu-type=${_GPU_TYPE}',
+         '-image-name=${_IMAGE_NAME}',
+         '-image-family=${_IMAGE_FAMILY}',
+         '-image-project=$PROJECT_ID',
+         '-disk-size-gb=${_DISK_SIZE}']
+timeout: '600s'
