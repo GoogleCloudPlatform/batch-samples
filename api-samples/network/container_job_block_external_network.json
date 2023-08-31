@@ -1,0 +1,21 @@
+{
+  "taskGroups": [ 
+    {
+      "taskSpec": {
+        "runnables": [
+          {
+              "container": {
+                "imageUri": "${CONTAINER_IMAGE_URI}",
+                "entrypoint": "/bin/sh",
+                "commands": ["-c", "echo hello world from task ${BATCH_TASK_INDEX}."],
+                "blockExternalNetwork": ${BLOCK_EXTERNAL_NETWORK}
+              }
+          }
+        ]
+      }
+    }
+  ],
+  "logsPolicy": {
+    "destination": "CLOUD_LOGGING"
+  }
+}

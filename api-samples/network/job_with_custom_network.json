@@ -1,0 +1,29 @@
+{
+  "taskGroups": [
+    {
+      "taskSpec": {
+        "runnables": [
+          {
+            "script": {
+              "text": "echo hello world from task ${BATCH_TASK_INDEX}."
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "allocationPolicy": {
+    "network": {
+      "networkInterfaces": [
+        {
+          "network": "projects/${HOST_PROJECT_ID}/global/networks/${NETWORK}",
+          "subnetwork": "projects/${HOST_PROJECT_ID}/regions/${REGION}/subnetworks/${SUBNET}",
+          "noExternalIpAddress": ${NO_EXTERNAL_IP_ADDRESS}
+        }
+      ]
+    }
+  },
+  "logsPolicy": {
+    "destination": "CLOUD_LOGGING"
+  }
+}
