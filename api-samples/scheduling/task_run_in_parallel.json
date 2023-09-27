@@ -1,0 +1,22 @@
+{
+  "taskGroups": [ 
+    {
+      "taskSpec": {
+        "runnables": [
+            {
+                "script": {
+                  "text": "echo hello world from task ${BATCH_TASK_INDEX}."
+                }
+            }
+        ]
+      },
+      "taskCount": 3,
+      "parallelism": 3,
+      "taskCountPerNode": 3,
+      "schedulingPolicy": "AS_SOON_AS_POSSIBLE"
+    }
+  ],
+  "logsPolicy": {
+      "destination": "CLOUD_LOGGING"
+  }
+}
