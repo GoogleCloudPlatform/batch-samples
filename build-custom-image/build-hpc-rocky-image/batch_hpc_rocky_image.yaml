@@ -1,0 +1,82 @@
+substitutions:
+  # UPDATE TO MATCH YOUR SETTINGS.
+  # Variables for custom HPC Rocky image sample.
+  # --------------------------------------------
+  # Image name for your custom built image.
+  # Image name needs to be unique in the project.
+  _IMAGE_NAME: "batch-hpc-rocky-image"
+  # Image family for your custom built image.
+  _IMAGE_FAMILY: ""
+  # Image description for your custom built image.
+  _IMAGE_DESCRIPTION: ""
+  # Image project id your custom image builds based on.
+  # Base image with HPC Rocky image OS type,
+  # such as Google standard HPC Rocky image from project cloud-hpc-image-public.
+  # or Batch's latest HPC Rocky image from project batch-custom-image.
+  _SOURCE_IMAGE_PROJECT_ID: "cloud-hpc-image-public"
+  # Image family that your custom image builds based on.
+  # If you build image based on "cloud-hpc-image-public" project, we recommend image family as "hpc-rocky-linux-8".
+  # If you build image based on "batch-custom-image" project,
+  # we recommend image family as "batch-hpc-rocky-linux-8-official"
+  _SOURCE_IMAGE_FAMILY: "hpc-rocky-linux-8"
+  # Machine type for you image building VM.
+  # Any machine type that supports GPU is acceptable.
+  _MACHINE_TYPE: "n1-standard-1"
+  # Disk size for your custom built image.
+  _DISK_SIZE: "30"
+  # Zone for your image building VM.
+  _ZONE: "us-central1-b"
+  # GPU Type for your image building VM.
+  # Any type inside `gcloud compute accelerator-types list` is acceptable.
+  _GPU_TYPE: "nvidia-tesla-t4"
+  # -----------------------------------------------------------
+  # Below are the Boolean flags for Batch required package installation.
+  # The Boolean flag indicating whether to install the docker related packages in this image.
+  _INSTALL_DRIVER_PACKAGES: "true"
+  # The Boolean flag indicating whether to install the GCSFuse in this image.
+  _INSTALL_GCS_PACKAGES: "true"
+  # The Boolean flag indicating whether to install the local SSD related packages in this image.
+  _INSTALL_LOCAL_SSD_PACKAGES: "true"
+  # The Boolean flag indicating whether to install the GPU related packages in this image.
+  _INSTALL_GPU_PACKAGES: "true"
+  # The Boolean flag indicating whether to install Batch's Cloud Batch Agent in this image.
+  # We recommend you set this flag as false, because the Cloud Batch Agent has a pretty short lifetime now.
+  # When the image does not have the Cloud Batch Agent installed, when you submit a Batch job,
+  # Batch will always install the latest Cloud Batch Agent for you, to avoid Cloud Batch Agent outdated issues.
+  _INSTALL_CLOUD_BATCH_AGENT: "false"
+
+steps:
+- name: 'gcr.io/${PROJECT_ID}/packer'
+  args:
+  - build
+  - -var
+  - "project_id=${PROJECT_ID}"
+  - -var
+  - "image_name=${_IMAGE_NAME}"
+  - -var
+  - "image_family=${_IMAGE_FAMILY}"
+  - -var
+  - "image_description=${_IMAGE_DESCRIPTION}"
+  - -var
+  - "source_image_family=${_SOURCE_IMAGE_FAMILY}"
+  - -var
+  - "source_image_project_id=${_SOURCE_IMAGE_PROJECT_ID}"
+  - -var
+  - "machine_type=${_MACHINE_TYPE}"
+  - -var
+  - "disk_size=${_DISK_SIZE}"
+  - -var
+  - "zone=${_ZONE}"
+  - -var
+  - "gpu_type=${_GPU_TYPE}"
+  - -var
+  - "install_driver_packages=${_INSTALL_DRIVER_PACKAGES}"
+  - -var
+  - "install_gcs_packages=${_INSTALL_GCS_PACKAGES}"
+  - -var
+  - "install_local_ssd_packages=${_INSTALL_LOCAL_SSD_PACKAGES}"
+  - -var
+  - "install_gpu_packages=${_INSTALL_GPU_PACKAGES}"
+  - -var
+  - "install_agent_packages=${_INSTALL_CLOUD_BATCH_AGENT}"
+  - batch_hpc_rocky_image.json
