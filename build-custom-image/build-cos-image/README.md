@@ -1,5 +1,5 @@
 ## Overview
-Batch required Container-Optimized (COS) Images can be built with [cos-customizer](https://cos.googlesource.com/cos/tools/+/refs/heads/master/src/cmd/cos_customizer).
+Batch compatible Container-Optimized (COS) Images can be built with [cos-customizer](https://cos.googlesource.com/cos/tools/+/refs/heads/master/src/cmd/cos_customizer).
 
 ## Prerequisites
 Fill in the values for variables for the Container-Optimized image generation in `batch_cos_image.yaml`.

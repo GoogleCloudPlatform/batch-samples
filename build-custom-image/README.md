@@ -2,7 +2,7 @@
 [Batch](https://cloud.google.com/batch/docs/get-started) has provided Batch images under project `batch-custom-image` for different OS types.
 The Batch images pre-installs the required packages for running Batch jobs, which can help you save Batch job running time, as well as overcoming network limitations.
 
-This folder provides strategy on how to build a Batch required (preferred) image with different OS types. Due to the latency on GitHub update, if you meet with any issues when running the scripts in the folder, feel free to get help from Batch team.
+This folder contains instructions on how to create a Batch compatible image with various operating system types.
 
 ## Prerequisites
 
@@ -18,5 +18,5 @@ This folder provides strategy on how to build a Batch required (preferred) image
     -   Storage Object Viewer
     -   Other roles up to your startup script command requirement.
 
-3.  Ensure that you have [gcloud](http://go/gcloud) installed and you have run
+3.  Make sure that you have [gcloud](http://go/gcloud) installed and you have run
     `gcloud init` to set up your credentials.

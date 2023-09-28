@@ -1,5 +1,5 @@
 ## Overview
-Batch required Debian Images can be built using Google supported [Packer](https://github.com/GoogleCloudPlatform/cloud-builders-community/tree/master/packer).
+Batch compatible Debian Images can be built using Google supported [Packer](https://github.com/GoogleCloudPlatform/cloud-builders-community/tree/master/packer).
 
 ## Prerequisites
 ### Generate Packer Builder
