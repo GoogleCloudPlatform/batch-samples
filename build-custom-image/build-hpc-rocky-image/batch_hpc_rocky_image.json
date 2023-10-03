@@ -25,5 +25,11 @@
         "install_agent_packages": "{{user `install_agent_packages`}}"
       }
     }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": ["rm /home/packer/.ssh/authorized_keys"]
+    }
   ]
 }
