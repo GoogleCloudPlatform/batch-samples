@@ -6,7 +6,7 @@ main:
       - project: ${default(map.get(args, "project"), sys.get_env("GOOGLE_CLOUD_PROJECT_ID"))}
       - location: ${default(map.get(args, "location"), sys.get_env("GOOGLE_CLOUD_LOCATION"))}
       - job_filter: ${default(map.get(args, "job_filter"), "(status.state:SUCCEEDED OR status.state:FAILED) AND create_time<=\"2023-05-01T00:00:00Z\"")}
-      - page_size: ${default(map.get(args, "pige_size"), 100)} # default page size to 100
+      - page_size: ${default(map.get(args, "page_size"), 100)} # default page size to 100
       - dataset_id: ${default(map.get(args, "dataset_id"), "default_dataset_id")} # default dataset_id as default_dataset_id
       - table_id: ${default(map.get(args, "table_id"), "default_table_id")} # default table id as default_table_id
   - init:
