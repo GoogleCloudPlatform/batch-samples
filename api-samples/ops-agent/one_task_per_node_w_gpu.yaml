@@ -1,0 +1,29 @@
+taskGroups:
+- taskSpec:
+    runnables:
+    - script:
+        text: |
+              # Check if Ops Agent is already installed
+              if ! dpkg -l | grep google-cloud-ops-agent; then
+                  # Ops Agent is not installed, run the installation script
+                  curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+                  sudo bash add-google-cloud-ops-agent-repo.sh --also-install
+              else
+                  # Ops Agent is already installed, skip the installation
+                  echo "Ops Agent is already installed. Skipping installation."
+              fi
+    - script:
+        text: "${FOLLOWING_SCRIPT}"
+allocationPolicy:
+  instances:
+  - installGpuDrivers: true
+    policy:
+      machineType: "n1-standard-1"
+      accelerators:
+      - type: "${GPU_TYPE}"
+        count: 1
+  location:
+    allowedLocations:
+    - "${ALLOWED_LOCATIONS}"
+logsPolicy:
+  destination: "CLOUD_LOGGING"
