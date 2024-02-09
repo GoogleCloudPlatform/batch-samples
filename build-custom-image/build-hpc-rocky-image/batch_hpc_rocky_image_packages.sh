@@ -9,11 +9,11 @@ function install_docker_requirements() {
   install_driver_packages=$(curl -sfH "${HEADER}" "${ATTR_URL}/install_driver_packages")
   if [[ "$install_driver_packages" = "true" ]]; then
     # Install docker.
-    yum install -y yum-utils
-    yum-config-manager \
-      --add-repo \
-      https://download.docker.com/linux/centos/docker-ce.repo
-    yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin || exit_error "docker installation failed."
+    dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    dnf -y install docker-ce || exit_error "docker-ce installation failed."
+    dnf -y install docker-ce-cli || exit_error "docker-ce-cli installation failed."
+    dnf -y install containerd.io || exit_error "containerd.io installation failed."
+    dnf -y install docker-compose-plugin || exit_error "docker-compose-plugin installation failed."
     # Install docker credential helper.
     CLOUDSDK_PYTHON=/usr/bin/python3 gsutil cp gs://batch-agent-prod-us/docker-credential-gcr-tool/docker-credential-gcr-"$MACHINE".tar.gz docker-credential-gcr.tar.gz
     tar -xzf docker-credential-gcr.tar.gz
