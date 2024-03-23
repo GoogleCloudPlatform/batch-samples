@@ -1,6 +1,6 @@
 # Running the Weather Research and Forecasting model with Batch
 
-In this example we'll run the WRF model on several VMs as part of a tightly coupled Batch Job. We'll create one machine manually (not as a Node of a Batch Job) to act as a console, and use that machine to arrange the necessary software and test data for WRF in a Filestore. Then run a Batch Job whose Nodes mount the same Filestore to share the software and test data.
+In this example we'll run the [WRF](https://www.mmm.ucar.edu/models/wrf) model on several VMs as part of a tightly coupled Batch job. We'll create one machine manually (not as a node of a Batch job) and use that machine to arrange the necessary software and test data for WRF in a Filestore. Then we'll run a Batch job whose nodes mount the same Filestore to access that software and test data.
 
 We'll use the [Google Cloud CLI](https://cloud.google.com/sdk/gcloud) (gcloud) to work with Batch and other Google Cloud features.
 
@@ -62,22 +62,48 @@ mount -t nfs <Filestore IP>:/<Filestore share name> /mnt/share
 cd /mnt/share
 ```
 
-Install the Spack environment and use that to download, build, and install WRF. We'll use a build cache from Cloud Days 22 to make this go faster:
+Make sure you have up to date Google Cloud CLI components
+
+```
+gcloud components update
+```
+
+and have set application default credentials.
+
+```
+gcloud auth login
+```
+
+The next step uses the [Spack package manager](https://spack.io/), which reqiures Python 3. You can check the version of Python on your login node with
+
+```
+python --version
+```
+
+If the version is less than three, install Python 3 and make sure that the "python" in your PATH points to python3 instead of python2.
+
+```
+sudo yum install python3
+sudo rm /usr/bin/python
+sudo ln -s /usr/bin/python3 /usr/bin/python
+```
+
+With Python 3 installed you can now set up a Spack environment and install WRF.
 
 ```
 git clone -c feature.manyFiles=true https://github.com/spack/spack.git
-. spack/share/spack/setup-env.sh
-spack mirror add gcs https://storage.googleapis.com/pnnl-clouddays22-workshop
-spack buildcache keys --install --trust
-spack install gcc@8.2.0
+cd spack
+git checkout -b v0.21 origin/releases/v0.21
+. share/spack/setup-env.sh
+spack install --no-check-signature gcc@8.2.0
 spack load gcc@8.2.0
 spack compiler find
 spack install intel-mpi@2018.4.274
-spack install wrf@3.9.1.1 build_type=dm+sm compile_type=em_real nesting=basic ~pnetcdf
+spack install --no-check-signature wrf@3.9.1.1 build_type=dm+sm compile_type=em_real nesting=basic ~pnetcdf
 spack load wrf
 ```
 
-Get a small test data set (we'll try it right on the console VM before running a Batch Job for a bigger data set).
+Get a small test data set. We'll try it right on the console VM before running a Batch job on a bigger data set.
 
 ```
 wget http://www2.mmm.ucar.edu/wrf/bench/conus12km_v3911/bench_12km.tar.bz2
@@ -117,86 +143,68 @@ We can run wrf.exe on this just like the smaller set, but on a single c2-standar
 
 ## The Batch Job
 
-We need an instance template to point our Batch Job at the HPC VM Image
+This is the Batch Job (see job.yaml):
 
 ```
-gcloud compute instance-templates create wrf-worker --image-family=hpc-centos-7 --image-project=cloud-hpc-image-public --machine-type=c2-standard-60 --boot-disk-size=200GB
-```
-
-and (to make the Batch Job configuration a little cleaner) we can store the main workload script in a separate file, at `/mnt/share/batch/runsim.sh`:
-
-```
-#!/bin/bash
-if [ $BATCH_TASK_INDEX = 0 ]; then
-  . /mnt/share/spack/share/spack/setup-env.sh
-  spack load gcc@8.2.0
-  spack compiler find
-  spack load wrf
-  cd /mnt/share/batch
-  mpirun -hostfile $BATCH_HOSTS_FILE -np 120 -ppn 30 $PWD/wrf.exe
-fi
-```
-
-This is the Batch Job (see job.json):
-
-```
-{
-  "taskGroups":[{
-    "task_spec":{
-      "runnables":[
-        { "barrier": {} },
-        {
-          "script": {
-            "path":"/mnt/share/batch/runsim.sh"
-          }
-        },
-        { "barrier": {} }
-      ],
-      "volumes":[{
-        "nfs":{
-          "server":"<YOUR FILESTORE IP ADDRESS>",
-          "remote_path": "<YOUR FILESTORE PATH>"
-        },
-        "mount_path": "/mnt/share"
-      }]
-    },
-    "task_count":4,
-    "task_count_per_node": 1,
-    "require_hosts_file": true,
-    "permissive_ssh": true
-  }],
-  "allocation_policy": {
-    "instances": [{
-      "instance_template": "projects/<YOUR PROJECT ID>/global/instanceTemplates/wrf-worker"
-    }],
-    "location": {
-      "allowed_locations": [ "<YOUR FILESTORE'S REGION, e.g. reiongs/us-central1>", "<YOUR FILESTORE'S ZONE, e.g. zones/us-central1-a>" ]
-    }
-  },
-  "logs_policy": {
-    "destination": "CLOUD_LOGGING"
-  }
-}
+taskGroups:
+  - taskSpec:
+      runnables:
+        - barrier:
+            name: wait-all-vm-startup
+        - script:
+            text: |
+              #!/bin/bash
+              if [ $BATCH_NODE_INDEX = 0 ]; then
+                . /mnt/share/spack/share/spack/setup-env.sh
+                spack load gcc@8.2.0
+                spack compiler find
+                spack load wrf
+                cd /mnt/share/batch
+                mpirun -hostfile $BATCH_HOSTS_FILE -np 120 -ppn 30 $PWD/wrf.exe
+              fi
+        - barrier:
+            name: wait-mpirun-finish
+      volumes:
+        - nfs:
+            server: <YOUR FILESTORE IP ADDRESS>
+            remote_path: <YOUR FILESTORE PATH>
+          mount_path: /mnt/share
+    task_count: 4
+    task_count_per_node: 1
+    require_hosts_file: true
+    permissive_ssh: true
+allocation_policy:
+  instances:
+    - policy:
+        machine_type: c2-standard-60
+        boot_disk:
+          image: batch-hpc-centos
+          size_gb: 200
+  location:
+    allowed_locations:
+      - regions/us-central1
+      - zones/us-central1-a
+logs_policy:
+  destination: CLOUD_LOGGING
 ```
 
 This Job has a few special properties to facilitate running MPI:
 
-1. We call mpirun with an explicit rank count and ranks-per-node, so we need to know exactly how many Nodes will be allocated to the Job.
-   task_count=4 and task_count_per_node=1 ensures that we get exactly four Nodes.
-2. require_hosts_file=true causes each Node to be equipped with a file listing all Nodes in the same TaskGroup.
-   We'll pass this to mpirun with the $BATCH_HOSTS_FILE environment variable.
-3. permissive_ssh=true causes SSH to be configured on each Node of our Job, so that each Node can SSH to each other Node in the same TaskGroup,
-   without a password. This allows the MPI processes spawned by mpirun to communicate between Nodes.
-4. The "barrier" Runnables before and after the `runsim.sh` script cause the Nodes in the Job to synchronize. No Node in the TaskGroup will move
-   past a barrier until all the Nodes in the TaskGroup have reached that same barrier. The first barrier causes the "driver" Node, with
-   BATCH_TASK_INDEX=0, which calls mpirun, to wait for the other Nodes to start up. The second barrier keeps the worker Nodes from declaring their
-   Tasks "done" before the driver Node's mpirun process has completed. This prevents the Batch autoscaler from potentially scaling down the TaskGroup's
+1. We call mpirun with an explicit rank count and ranks-per-node, so we need to know exactly how many nodes will be allocated to the job.
+   task_count=4 and task_count_per_node=1 ensures that we get exactly four nodes.
+2. require_hosts_file=true causes each node to be equipped with a file listing all nodes in the same TaskGroup. This hosts file is at the path $BATCH_HOSTS_FILE.
+3. permissive_ssh=true causes SSH to be configured on each node so that each node can SSH to each other node in the same TaskGroup,
+   without a password. This allows mpirun to coordinate MPI processes across all nodes.
+4. The "barrier" runnables before and after the main script cause the nodes in the job to synchronize. No node in the TaskGroup will move
+   past a barrier until all the nodes have reached that same barrier. The first barrier causes the "driver" Node, with
+   BATCH_NODE_INDEX=0 to wait for the other nodes to start up. The second barrier keeps the worker nodes from declaring their
+   tasks "done" before the driver node's mpirun process has completed. This prevents the Batch autoscaler from potentially scaling down the TaskGroup's
    instance group.
 
-With `job.json` copied to your console VM (or your mounted Filestore), and the Filestore IP and path, and project ID filled in, the Job can be run with
+With `job.yaml` copied to your console VM and the Filestore information filled in the job can be run with
 
 ```
-gcloud batch jobs submit wrfmpi --location=us-central1 --config=job.json
+gcloud batch jobs submit wrfmpi --location=us-central1 --config=job.yaml
 ```
 
 The Job should be completed in about 25 minutes, and can be checked with
