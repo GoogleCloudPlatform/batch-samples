@@ -1,0 +1,40 @@
+taskGroups:
+  - taskSpec:
+      runnables:
+        - barrier:
+            name: wait-all-vm-startup
+        - script:
+            text: |
+              #!/bin/bash
+              if [ $BATCH_NODE_INDEX = 0 ]; then
+                . /mnt/share/spack/share/spack/setup-env.sh
+                spack load gcc@8.2.0
+                spack compiler find
+                spack load wrf
+                cd /mnt/share/batch
+                mpirun -hostfile $BATCH_HOSTS_FILE -np 120 -ppn 30 $PWD/wrf.exe
+              fi
+        - barrier:
+            name: wait-mpirun-finish
+      volumes:
+        - nfs:
+            server: <YOUR FILESTORE IP ADDRESS>
+            remote_path: <YOUR FILESTORE PATH>
+          mount_path: /mnt/share
+    task_count: 4
+    task_count_per_node: 1
+    require_hosts_file: true
+    permissive_ssh: true
+allocation_policy:
+  instances:
+    - policy:
+        machine_type: c2-standard-60
+        boot_disk:
+          image: batch-hpc-centos
+          size_gb: 200
+  location:
+    allowed_locations:
+      - regions/us-central1
+      - zones/us-central1-a
+logs_policy:
+  destination: CLOUD_LOGGING
