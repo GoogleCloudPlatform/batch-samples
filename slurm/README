@@ -1,0 +1,59 @@
+# README for SLURM to Google Cloud Batch Conversion Script
+
+This tool helps convert SLURM scripts into Google Cloud Batch jobs. The script parses the SLURM script for resource requirements and generates a corresponding job on Google Cloud Batch.
+
+## Prerequisites
+
+Before using this script, you must have the following setup:
+
+1. **Google Cloud SDK**:
+   Install the Google Cloud SDK to interact with Google Cloud services. Follow the installation instructions on the [official documentation](https://cloud.google.com/sdk/docs/install).
+
+2. **Python Client for Google Cloud Batch**:
+   Install the Python SDK for Google Cloud Batch to allow your script to communicate with the Google Cloud Batch API. Install it via pip:
+
+   ```bash
+   pip install google-cloud-batch
+   ```
+3. Authentication:
+Use Application Default Credentials (ADC):
+
+    ```
+    gcloud auth application-default login
+    ```
+
+## Installation
+1. Ensure Python 3.x is installed on your system.
+2. Install required Python packages if not already installed:
+
+    ```
+    pip install google-cloud-batch
+    ```
+3. Clone or download this script to your local system or Google Cloud Shell.
+
+## Usage
+To run this script, use the following command from the terminal:
+
+```
+python3 script.py <job_name> <project_id> <slurm_script_path> [region]
+```
+
+Where:
+* `job_name` is the name you want to assign to your Batch job.
+* `project_id` is your Google Cloud Project ID.
+* `slurm_script_path` is the path to your SLURM script.
+* `region`(optional) is the region to deploy your Batch job. Default is `us-central1`.
+
+## Features
+
+The script includes:
+
+* Parsing of the SLURM script for CPU, GPU count, and GPU type.
+* Automatic creation of SLURM configuration files (slurm.conf, gres.conf).
+* Generation of a systemd service configuration for SLURM.
+* Deployment of a Google Cloud Batch job configured as per the SLURM script's requirements.
+
+## Limitations 
+
+* The script currently supports a limited set of SLURM directives. Custom directives might not be parsed correctly.
+* GPU configurations are assumed to be NVIDIA specific due to the use of nvidia-smi.
