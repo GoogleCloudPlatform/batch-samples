@@ -1,6 +1,6 @@
-import re
 import sys
 from google.cloud import batch_v1
+import yaml
 
 # Constants for default values
 DEFAULT_CPUS = 1
@@ -27,24 +27,37 @@ def parse_slurm_script(slurm_script_path):
   except FileNotFoundError:
     print(f'Error: SLURM script file not found at {slurm_script_path}')
     sys.exit(1)
-
+  print(slurm_script)
   for line in slurm_script.splitlines():
     line = line.strip()
     if line.startswith('#SBATCH'):
       parts = line.split()
+      print(parts)
 
-      if '--cpus-per-task' in parts:
-        cpus = int(parts[parts.index('--cpus-per-task') + 1])
-      elif '--ntasks-per-node' in parts:
-        ntasks_per_node = int(parts[parts.index('--ntasks-per-node') + 1])
-      elif '--gpus-per-task' in parts:
-        gpus_per_task = int(parts[parts.index('--gpus-per-task') + 1])
-      elif '--gres' in parts:
-        gres_parts = parts[parts.index('--gres') + 1].split(':')
-        if gres_parts[0] == 'gpu':
-          gpu_type = gres_parts[1] if len(gres_parts) == 3 else None
-          gpus = int(gres_parts[2]) if len(gres_parts) >= 2 else 0
-
+      if '--cpus-per-task' in parts[1]:
+        cpus_per_task = int(parts[1].split('=')[1])
+      elif '--ntasks-per-node' in parts[1]:
+        ntasks_per_node = int(parts[1].split('=')[1])
+      elif '--gpus-per-task' in parts[1]:
+        gpus_per_task = int(parts[1].split('=')[1])
+      elif '--gres' in parts[1]:
+        gres_parts = parts[1].split('=')[1].split(':')
+        if len(gres_parts) >= 2:
+          gpu_type = gres_parts[0]  # This will always be 'gpu'
+          if len(gres_parts) == 3:
+            gpu_type = gres_parts[
+                1
+            ]  # This captures specific GPU types like 'tesla'
+            gpus = int(gres_parts[2])
+          elif len(gres_parts) == 2:
+            gpus = int(gres_parts[1])
+            
+  if 'cpus_per_task' in locals() and 'ntasks_per_node' in locals():
+    cpus = cpus_per_task * ntasks_per_node
+  if 'gpus_per_task' in locals() and 'ntasks_per_node' in locals():
+    gpus = gpus_per_task * ntasks_per_node
+  
+  print(cpus, gpus, gpu_type)
   return cpus, gpus, gpu_type
 
 
@@ -224,12 +237,17 @@ def create_script_job(
   allocation_policy = create_allocation_policy(region)
 
   job = create_batch_job(job_name, [group], allocation_policy)
+  print("YAML")
+  dump_to_yaml(job)
   create_request = batch_v1.CreateJobRequest()
   create_request.job = job
   create_request.job_id = job_name
   create_request.parent = f'projects/{project_id}/locations/{region}'
+  print(create_request)
+  dump_to_yaml(create_request)
 
-  return client.create_job(create_request)
+  # return client.create_job(create_request)
+  return None
 
 
 def create_allocation_policy(region):
@@ -271,6 +289,12 @@ def create_batch_job(job_name, task_groups, allocation_policy):
       destination=batch_v1.LogsPolicy.Destination.CLOUD_LOGGING
   )
   return job
+
+def dump_to_yaml(job):
+  job_yaml = yaml.dump(vars(job), default_flow_style=False)
+  print(job_yaml)
+  
+  
 
 
 def main():
