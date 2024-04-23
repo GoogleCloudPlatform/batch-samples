@@ -1,6 +1,6 @@
 # README for SLURM to Google Cloud Batch Conversion Script
 
-This tool helps convert SLURM scripts into Google Cloud Batch jobs. The script parses the SLURM script for resource requirements and generates a corresponding job on Google Cloud Batch.
+This tool helps convert SLURM scripts into Google Cloud Batch jobs and **submit** a Batch job. The script parses the SLURM script for resource requirements and generates a corresponding job on Google Cloud Batch.
 
 ## Prerequisites
 
