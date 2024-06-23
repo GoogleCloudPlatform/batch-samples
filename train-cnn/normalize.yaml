@@ -1,0 +1,23 @@
+taskGroups:
+  - taskSpec:
+      runnables:
+        - container:
+            imageUri: us-central1-docker.pkg.dev/<your project>/<your repo>/<your image name>
+            entrypoint: python3
+            commands:
+              - /scripts/normalize.py
+          environment:
+            variables:
+              DATA_ROOT: /mnt/disks/dogs-vs-cats/data
+              BIN_SIZE: "125"
+      volumes:
+        - nfs:
+            server: <your Filestore IP address>
+            remotePath: <your Filestore share path, e.g. /share>
+          mountPath: /mnt/disks/dogs-vs-cats
+      computeResource:
+        cpuMilli: 4000
+        memoryMib: 16000
+    taskCount: 100
+logsPolicy:
+  destination: CLOUD_LOGGING
