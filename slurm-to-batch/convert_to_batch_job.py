@@ -136,7 +136,9 @@ def createJobJSON(slurm_conf: SlurmJobConfig) -> dict:
                             },
                         },
                         {
-                            "barrier": {}
+                            "barrier": {
+                                "name": "slurmctld-started"
+                            }
                         },
                         {
                             "script": {
@@ -144,7 +146,9 @@ def createJobJSON(slurm_conf: SlurmJobConfig) -> dict:
                             }
                         },
                         {
-                            "barrier": {}
+                            "barrier": {
+                                "name": "slurmd-started-all-vms"
+                            }
                         },
                         {
                             "script": {
@@ -152,7 +156,9 @@ def createJobJSON(slurm_conf: SlurmJobConfig) -> dict:
                             }
                         },
                         {
-                            "barrier": {}
+                            "barrier": {
+                                "name": "slurm-job-finished-all-vms"
+                            }
                         },
                     ],
                 },
@@ -188,6 +194,13 @@ def createJobJSON(slurm_conf: SlurmJobConfig) -> dict:
     }
     return job_definition
 
+def str_presenter(dumper, data):
+    """configures yaml for dumping multiline strings
+    Ref: https://stackoverflow.com/questions/8640959/how-can-i-control-what-scalar-form-pyyaml-uses-for-my-data"""
+    if data.count('\n') > 0:  # check for multiline string
+        return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+
 def main():
     if len(sys.argv) != 2 and len(sys.argv) != 3:
         print(
@@ -195,7 +208,6 @@ def main():
         )
         sys.exit(1)
         
-
     slurm_script_path = sys.argv[1]
     if len(sys.argv) == 2:
         # Use the slurm_script_path's folder.
@@ -205,17 +217,6 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
     
     config = SlurmScriptParser.parse_slurm_script(slurm_script_path)
-    json_data = json.dumps(createJobJSON(config), indent=4)
-    json_file_path = os.path.join(output_dir, f"{config.job_name}_template.json")
-    with open(json_file_path, 'w') as json_file:
-        json_file.write(json_data)
-
-    def str_presenter(dumper, data):
-        """configures yaml for dumping multiline strings
-        Ref: https://stackoverflow.com/questions/8640959/how-can-i-control-what-scalar-form-pyyaml-uses-for-my-data"""
-        if data.count('\n') > 0:  # check for multiline string
-            return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
-        return dumper.represent_scalar('tag:yaml.org,2002:str', data)
     yaml.add_representer(str, str_presenter)
     yaml.representer.SafeRepresenter.add_representer(str, str_presenter)
     yaml_data = yaml.dump(createJobJSON(config), allow_unicode=True)

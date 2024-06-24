@@ -21,9 +21,9 @@ This Python script simplifies the transition of your Slurm workload scripts to G
    ```
    * <slurm_script_path>: Path to your Slurm script.
    * <batch_tempalte_folder> (Optional): Desired output directory for the template files(default to the Slurm script's parent folder).
-The script will generate two files: one in YAML format and one in JSON format. We recommend using the YAML file for better readability.
+The script will generate a YAML Batch job template.
 
-## Template Placholders
+## Template Placeholders
 After generating the template, replace the following placeholders:
 
 * <CUSTOM_GPU_TYPE>: The GPU type you want to use (e.g., nvidia-l4, nvidia-tesla-v100).
