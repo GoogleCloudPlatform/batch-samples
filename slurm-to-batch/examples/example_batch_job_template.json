@@ -1,0 +1,63 @@
+{
+    "taskGroups": [
+        {
+            "task_spec": {
+                "runnables": [
+                    {
+                        "script": {
+                            "text": "#!/bin/bash\n\n# Script to configure Slurm's GPU resources in gres.conf\n\ncat <<EOF > /usr/local/etc/slurm/gres.conf\n# Define GPU resources\nAutoDetect=nvml\nName=gpu File=/dev/nvidia0\nName=gpu File=/dev/nvidia1\nEOF\n\n\ncat <<EOF > /usr/local/etc/slurm/slurm.conf\nClusterName=${BATCH_JOB_ID}\nSlurmctldHost=$(head -1 ${BATCH_HOSTS_FILE})\nAuthType=auth/munge\n\nProctrackType=proctrack/pgid\nReturnToService=2\n\n# For GPU resource\nGresTypes=gpu\n\nSlurmctldPidFile=/var/run/slurm/slurmctld.pid\nSlurmdPidFile=/var/run/slurm/slurmd.pid\n# slurm logs\nSlurmdLogFile=/var/log/slurm/slurmd.log\nSlurmctldLogFile=/var/log/slurm/slurmctld.log\nSlurmdSpoolDir=/var/spool/slurmd\n\nSlurmUser=root\nStateSaveLocation=/var/spool/slurmctld\nTaskPlugin=task/none\nSchedulerType=sched/backfill\nSelectTypeParameters=CR_Core\n\n# Turn off both types of accounting\nJobAcctGatherFrequency=0\nJobAcctGatherType=jobacct_gather/none\nAccountingStorageType=accounting_storage/none\n\nSlurmctldDebug=3\nSlurmdDebug=3\nSelectType=select/cons_tres\nMaxNodeCount=2\nPartitionName=all  Nodes=ALL Default=yes\nEOF\n\nmkdir -p /var/spool/slurm\nchmod 755 /var/spool/slurm/\ntouch /var/log/slurmctld.log\nmkdir -p /var/log/slurm\ntouch /var/log/slurm/slurmd.log /var/log/slurm/slurmctld.log\ntouch /var/log/slurm_jobacct.log /var/log/slurm_jobcomp.log\n\nrm -rf /var/spool/slurmctld/*\nif [[ \"$BATCH_NODE_INDEX\" == \"0\" ]]; then\n    systemctl start slurmctld\n    MAX_RETRIES=5\n    RETRY_INTERVAL=5\n    for (( i=1; i<=MAX_RETRIES; i++ )); do\n        if systemctl is-active --quiet slurmctld; then\n        echo \"slurmctld are running.\"\n        break\n        fi\n        echo \"Services not running. Retrying in $RETRY_INTERVAL seconds...\"\n        sleep $RETRY_INTERVAL\n    done\nfi\n"
+                        }
+                    },
+                    {
+                        "barrier": {}
+                    },
+                    {
+                        "script": {
+                            "text": "#!/bin/bash\n\n/usr/local/sbin/slurmd -Z --conf \"Gres=gpu:2\"\nRETRIES=5\nWAIT_TIME=1\n\nfor (( i=1; i<=$RETRIES; i++ )); do\n    if ps -ef | grep -v grep | grep slurmd > /dev/null; then\n        echo \"slurmd is running!\"\n        exit 0\n    else\n        echo \"slurmd not found, retrying in $WAIT_TIME seconds...\"\n        sleep $WAIT_TIME\n    fi\ndone\n\necho \"slurmd did not start after $RETRIES attempts.\"\nexit 1\n"
+                        }
+                    },
+                    {
+                        "barrier": {}
+                    },
+                    {
+                        "script": {
+                            "text": "#!/bin/bash\n\nif [[ \"$BATCH_NODE_INDEX\" == \"0\" ]]; then\n    <SRUN_COMMAND>\nfi\n"
+                        }
+                    },
+                    {
+                        "barrier": {}
+                    }
+                ]
+            },
+            "task_count_per_node": 1,
+            "task_count": 2,
+            "require_hosts_file": true
+        }
+    ],
+    "allocation_policy": {
+        "location": {
+            "allowed_locations": [
+                "zones/<SELECTED_ZONE>"
+            ]
+        },
+        "instances": {
+            "policy": {
+                "accelerators": {
+                    "type": "<CUSTOM_GPU_TYPE>",
+                    "count": 2
+                },
+                "boot_disk": {
+                    "image": "<CUSTOM_BOOT_IMAGE>",
+                    "size_gb": "<CUSTOM_BOOT_DISK_SIZE>"
+                }
+            },
+            "install_gpu_drivers": true
+        }
+    },
+    "labels": {
+        "goog-batch-dynamic-workload-scheduler": "true"
+    },
+    "logs_policy": {
+        "destination": "CLOUD_LOGGING"
+    }
+}
