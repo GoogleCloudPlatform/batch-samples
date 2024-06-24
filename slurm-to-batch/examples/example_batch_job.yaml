@@ -1,0 +1,127 @@
+allocation_policy:
+  instances:
+    install_gpu_drivers: true
+    policy:
+      accelerators:
+        count: 2
+        type: nvidia-l4
+      boot_disk:
+        image: projects/projectofbob/global/images/image-ias-test
+        size_gb: 50
+  location:
+    allowed_locations:
+    - zones/us-central1-a
+labels:
+  goog-batch-dynamic-workload-scheduler: 'true'
+logs_policy:
+  destination: CLOUD_LOGGING
+taskGroups:
+- require_hosts_file: true
+  task_count: 2
+  task_count_per_node: 1
+  task_spec:
+    runnables:
+    - script:
+        text: |
+          #!/bin/bash
+
+          # Script to configure Slurm's GPU resources in gres.conf
+
+          cat <<EOF > /usr/local/etc/slurm/gres.conf
+          # Define GPU resources
+          AutoDetect=nvml
+          Name=gpu File=/dev/nvidia0
+          Name=gpu File=/dev/nvidia1
+          EOF
+
+
+          cat <<EOF > /usr/local/etc/slurm/slurm.conf
+          ClusterName=${BATCH_JOB_ID}
+          SlurmctldHost=$(head -1 ${BATCH_HOSTS_FILE})
+          AuthType=auth/munge
+
+          ProctrackType=proctrack/pgid
+          ReturnToService=2
+
+          # For GPU resource
+          GresTypes=gpu
+
+          SlurmctldPidFile=/var/run/slurm/slurmctld.pid
+          SlurmdPidFile=/var/run/slurm/slurmd.pid
+          # slurm logs
+          SlurmdLogFile=/var/log/slurm/slurmd.log
+          SlurmctldLogFile=/var/log/slurm/slurmctld.log
+          SlurmdSpoolDir=/var/spool/slurmd
+
+          SlurmUser=root
+          StateSaveLocation=/var/spool/slurmctld
+          TaskPlugin=task/none
+          SchedulerType=sched/backfill
+          SelectTypeParameters=CR_Core
+
+          # Turn off both types of accounting
+          JobAcctGatherFrequency=0
+          JobAcctGatherType=jobacct_gather/none
+          AccountingStorageType=accounting_storage/none
+
+          SlurmctldDebug=3
+          SlurmdDebug=3
+          SelectType=select/cons_tres
+          MaxNodeCount=2
+          PartitionName=all  Nodes=ALL Default=yes
+          EOF
+
+          mkdir -p /var/spool/slurm
+          chmod 755 /var/spool/slurm/
+          touch /var/log/slurmctld.log
+          mkdir -p /var/log/slurm
+          touch /var/log/slurm/slurmd.log /var/log/slurm/slurmctld.log
+          touch /var/log/slurm_jobacct.log /var/log/slurm_jobcomp.log
+
+          rm -rf /var/spool/slurmctld/*
+          if [[ "$BATCH_NODE_INDEX" == "0" ]]; then
+              systemctl start slurmctld
+              MAX_RETRIES=5
+              RETRY_INTERVAL=5
+              for (( i=1; i<=MAX_RETRIES; i++ )); do
+                  if systemctl is-active --quiet slurmctld; then
+                  echo "slurmctld are running."
+                  break
+                  fi
+                  echo "Services not running. Retrying in $RETRY_INTERVAL seconds..."
+                  sleep $RETRY_INTERVAL
+              done
+          fi
+    - barrier:
+        name: slurmctld-started
+    - script:
+        text: |
+          #!/bin/bash
+
+          /usr/local/sbin/slurmd -Z --conf "Gres=gpu:2"
+          RETRIES=5
+          WAIT_TIME=1
+
+          for (( i=1; i<=$RETRIES; i++ )); do
+              if ps -ef | grep -v grep | grep slurmd > /dev/null; then
+                  echo "slurmd is running!"
+                  exit 0
+              else
+                  echo "slurmd not found, retrying in $WAIT_TIME seconds..."
+                  sleep $WAIT_TIME
+              fi
+          done
+
+          echo "slurmd did not start after $RETRIES attempts."
+          exit 1
+    - barrier:
+        name: slurmd-started-all-vms
+    - script:
+        text: |
+          #!/bin/bash
+
+          if [[ "$BATCH_NODE_INDEX" == "0" ]]; then
+              srun -N2 --gres=gpu:2 /bin/nvidia-smi -L
+          fi
+    - barrier:
+        name: slurm-job-finished-all-vms
