@@ -1,0 +1,41 @@
+taskGroups:
+  - taskSpec:
+      runnables:
+        - container:
+            imageUri: us-central1-docker.pkg.dev/<your project>/<your repo>/<your image name>
+            volumes: /tmp:/tmp
+            commands:
+              - /scripts/localize.sh
+        - barrier:
+            name: all-vms-ready
+        - container:
+            imageUri: us-central1-docker.pkg.dev/<your project>/<your repo>/<your image name>
+            options: --network host
+            volumes: /tmp:/tmp
+            commands:
+              - /scripts/runtorch.sh
+        - barrier:
+            name: training-complete
+      environment:
+        variables:
+          DATA_ROOT: /mnt/disks/dogs-vs-cats/data
+      volumes:
+        - nfs:
+            server: <your Filestore IP address>
+            remotePath: <your Filestore share path, e.g. /share>
+          mountPath: /mnt/disks/dogs-vs-cats
+    taskCount: 8
+    taskCountPerNode: 1
+    requireHostsFile: true
+allocationPolicy:
+  instances:
+    - policy:
+        bootDisk:
+          sizeGb: 250
+        machineType: n1-standard-4
+        accelerators:
+          - type: nvidia-tesla-v100
+            count: 1
+      installGpuDrivers: true
+logsPolicy:
+  destination: CLOUD_LOGGING

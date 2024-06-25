@@ -1,0 +1,44 @@
+taskGroups:
+- taskSpec:
+    runnables:
+    - script:
+        text: |
+          #!/bin/bash
+          mkdir -p $WORK_DIR
+          mkdir -p $RESULTS_DIR
+          apt install -y python3-pip
+          pip3 install bitsandbytes datasets huggingface_hub peft torch transformers
+    - script:
+        text: |
+          #!/bin/bash
+          python3 $SCRIPTS_DIR/download-model.py --output $WORK_DIR
+    - script:
+        text: |
+          #!/bin/bash
+          python3 $SCRIPTS_DIR/fine-tune.py --input $WORK_DIR --output $RESULTS_DIR
+    volumes:
+    - nfs:
+        server: <YOUR FILESTORE IP ADDRESS>
+        remotePath: <YOUR FILESTORE SHARE PATH, e.g. /share>
+      mountPath: "/mnt/disks/llm"
+    environment:
+      variables:
+        WORK_DIR: /tmp
+        RESULTS_DIR: /mnt/disks/llm/fine-tune-results
+        SCRIPTS_DIR: /mnt/disks/llm/scripts
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      secretVariables:
+        HUGGING_FACE_HUB_TOKEN: projects/<YOUR PROJECT ID>/secrets/HuggingFaceHubToken/versions/1
+allocationPolicy:
+instances:
+- policy:
+    machineType: g2-standard-96
+    bootDisk:
+      image: projects/ml-images/global/images/c0-deeplearning-common-gpu-v20240128-debian-11-py310
+      sizeGb: 150
+    accelerators:
+    - type: nvidia-l4
+      count: 8
+  installGpuDrivers: true
+logsPolicy:
+destination: CLOUD_LOGGING
