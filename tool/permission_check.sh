@@ -1,14 +1,14 @@
 #!/bin/bash
 #
-# Check the related permissions and the roles are granted well to the user account and service account.
-# This script can use flages, either -u or --user_email to set the user account, and -s or --service_account to set the service account.
-# If the flags are not specified, the default values, which are from the gcloud config, will be used.
+# Check the related permissions and roles granted to the user account and service account.
+# This script can use flags, either -u or --user_email to set the user account, and -s or --service_account to set the service account.
+# If the flags are not specified, the default values from the gcloud config will be used.
 #
 # Need to use "gcloud config set project <PROJECT_ID>" to set up the project_id.
 #
 # Examples:
 #
-# Use the default gce servce account of the project
+# Use the default GCE service account of the project
 #
 # permission_check.sh
 #
@@ -67,10 +67,10 @@ check_permissions() {
 # Globals:
 #   None
 # Arguments:
-#   emial
+#   email
 # Outputs:
-#   if it is a service account return 0
-#   else return 1
+#   Return 0 if it is a service account
+#   Return 1 otherwise
 #######################################
 is_service_account() {
   local email
@@ -83,14 +83,14 @@ is_service_account() {
 }
 
 #######################################
-# Check if the input email is a internal account.
+# Check if the input email is a Google internal account.
 # Globals:
 #   None
 # Arguments:
-#   emial
+#   email
 # Outputs:
-#   if it is a internal account return 1
-#   else return 0
+#   Return 1 if it is a Google internal account
+#   Return 0 otherwise
 #######################################
 is_not_internal_account() {
   local email
@@ -185,7 +185,7 @@ user_related_group_check() {
   local -n urg_permissions_ref=$4
 
   related_principles=()
-  if is_service_account "$email"; then
+  if is_service_account "$user"; then
     related_principles+=(serviceAccount:$user)
   else
     related_principles+=(user:$user)
@@ -233,7 +233,7 @@ sa_check_permissions() {
 
 # Set the project name
 PROJECT_NAME=$(gcloud config get-value project)
-echo "Checking the project:$PROJECT_NAME"
+echo "Checking the project: $PROJECT_NAME"
 
 # Set the default user email and service account
 USER_EMAIL="$(gcloud config get-value account)"
@@ -245,12 +245,12 @@ while [[ $# -gt 0 ]]; do
 
   case $key in
   -u | --user_email)
-    user_email="$2"
+    USER_EMAIL="$2"
     shift # past argument
     shift # past value
     ;;
   -s | --service_account)
-    service_account="$2"
+    SA="$2"
     shift # past argument
     shift # past value
     ;;
@@ -261,12 +261,12 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "Checking the account:$USER_EMAIL"
-echo "Checking the service account:$SA"
+echo "Checking the account: $USER_EMAIL"
+echo "Checking the service account: $SA"
 
 # Get the project id of the service account
 SA_PROJECT=$(gcloud iam service-accounts describe "$SA" --format='value(projectId)')
-echo "Checking the service account project:$SA_PROJECT"
+echo "Checking the service account project: $SA_PROJECT"
 
 # Define an array of roles
 USER_ROLES=("roles/batch.jobsEditor")
@@ -467,3 +467,4 @@ else
   echo "Please check the guidebook to make sure all required roles granted: https://cloud.google.com/batch/docs/get-started#project-prerequisites"
   echo ""
 fi
+
