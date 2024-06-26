@@ -4,12 +4,16 @@
 
 This repository contains step-by-step tutorials and code samples to learn how to use [Batch](https://cloud.google.com/batch).
 
+- [api-samples](api-samples): Simple snippets of how to reference a specific feature in the API.
+- [build-custom-image](build-custom-image): Instructions on how to create a Batch compatible image with various operating system types.
 - [transcoding](transcoding): Quickstart tutorial of transcoding videos using Batch.
 - [busybox](busybox): A simple sample to run a container as a Batch job.
 - [primegen](primegen): An end-to-end sample of using Workflows and Cloud Build with Batch to automate the lifecycle of Batch jobs.
 - [wrf](wrf): A sample for running the [Weather Research and Forecasting
   Model](https://www.mmm.ucar.edu/weather-research-and-forecasting-model) in a
   Batch Job with MPI.
+
+This alternate [GCP PyBatch](https://github.com/GoogleCloudPlatform/scientific-computing-examples/tree/main/python-batch) repository contains a Python wrapper using the [Google Cloud Batch Python API](https://cloud.google.com/python/docs/reference/batch/latest).
 
 # About Batch
 
