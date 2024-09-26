@@ -1,0 +1,34 @@
+taskGroups:
+  - taskSpec:
+      runnables:
+        - container:
+            imageUri: us-central1-docker.pkg.dev/<your project>/<your repo>/<your image name>
+            entrypoint: bash
+            commands: "/scripts/run-ssh.sh"
+            volumes:
+              - /etc/ssh:/etc/ssh
+            options: "-td --network host"
+          background: true
+        - barrier:
+            name: "vms-ready"
+        - container:
+            imageUri: us-central1-docker.pkg.dev/<your project>/<your repo>/<your image name>
+            entrypoint: bash
+            commands: "/scripts/run-mpi.sh"
+            volumes:
+              - /etc/cloudbatch-taskgroup-hosts:/etc/cloudbatch-taskgroup-hosts
+              - /etc/ssh:/etc/ssh
+            options: "--network host"
+        - barrier:
+            name: "finish-mpi"
+    taskCount: 2
+    taskCountPerNode: 1
+    requireHostsFile: true
+    permissiveSsh: true
+allocationPolicy:
+  instances:
+    - policy:
+        bootDisk:
+          image: batch-debian
+logsPolicy:
+  destination: CLOUD_LOGGING
