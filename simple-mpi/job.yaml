@@ -1,0 +1,21 @@
+taskGroups:
+  - taskSpec:
+      runnables:
+        - script:
+            text: |
+              apt-get install --yes mpich
+        - barrier:
+            name: "vms-ready"
+        - script:
+            text: |
+              if [ $BATCH_NODE_INDEX = 0 ]; then
+                mpirun --hostfile $BATCH_HOSTS_FILE --np $BATCH_NODE_COUNT --ppn 1 hostname
+              fi
+        - barrier:
+            name: "finish-mpi"
+    taskCount: 2
+    taskCountPerNode: 1
+    requireHostsFile: true
+    permissiveSsh: true
+logsPolicy:
+  destination: CLOUD_LOGGING
