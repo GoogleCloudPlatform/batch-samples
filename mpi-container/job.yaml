@@ -9,6 +9,8 @@ taskGroups:
               - /etc/ssh:/etc/ssh
             options: "-td --network host"
           background: true
+        - script:
+            text: "until [ -f /etc/ssh/started ]; do sleep 1; done; echo sshd started on $(hostname)"
         - barrier:
             name: "vms-ready"
         - container:
