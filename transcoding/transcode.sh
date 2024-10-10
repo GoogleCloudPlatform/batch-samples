@@ -13,14 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+DEBIAN_FRONTEND=noninteractive sudo apt-get -y update
+DEBIAN_FRONTEND=noninteractive sudo apt-get -y install ffmpeg
 
-sudo apt-get -y update
-sudo apt-get -y install ffmpeg
-
-dir=/mnt/share
+dir=/mnt/disks/share
 infile=$dir/input/video-$BATCH_TASK_INDEX.mp4
 outfile=$dir/output/video-$BATCH_TASK_INDEX.webm
-vopts=-c:v libvpx-vp9 -b:v 1800k -minrate 1500 -maxrate 1610
+vopts="-c:v libvpx-vp9 -b:v 1800k -minrate 1500 -maxrate 1610"
 
 mkdir -p $dir/output
 ffmpeg -i $infile $vopts -an $outfile
