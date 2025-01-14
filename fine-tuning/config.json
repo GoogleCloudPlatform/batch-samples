@@ -1,0 +1,60 @@
+{
+  "taskGroups": [
+    {
+      "taskSpec": {
+        "runnables": [
+          {
+            "container": {
+              "imageUri": "${CONTAINER_IMAGE}",
+              "commands": [
+                "bash",
+                "-c",
+                "${CONTAINER_COMMAND}"
+              ],
+              "options": "--shm-size=${SHM_SIZE}"
+            },
+            "environment": {
+              "secretVariables": {
+                "WANDB_API_KEY": "${WANDB_API_KEY_SECRET}",
+                "HF_TOKEN": "${HF_TOKEN_SECRET}"
+              }
+            }
+          }
+        ],
+        "volumes": [
+          {
+            "gcs": {
+              "remotePath": "${BUCKET_PATH}"
+            },
+            "mountPath": "${MOUNT_PATH}"
+          }
+        ],
+        "computeResource": {
+          "cpuMilli": "${CPU_MILLI}",
+          "memoryMib": "${MEMORY_MIB}"
+        }
+      }
+    }
+  ],
+  "allocationPolicy": {
+    "instances": [
+      {
+        "installGpuDrivers": true,
+        "policy": {
+          "bootDisk": {
+            "sizeGb": "${BOOT_DISK_SIZE_GB}"
+          },
+
+          "machineType": "${MACHINE_TYPE}",
+          "reservation": "${RESERVATION}"
+        }
+      }
+    ],
+    "serviceAccount": {
+      "email": "${BATCH_SERVICE_ACCOUNT_EMAIL}"
+    }
+  },
+  "logsPolicy": {
+    "destination": "${LOGS_DESTINATION}"
+  }
+}
