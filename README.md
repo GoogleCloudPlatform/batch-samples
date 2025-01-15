@@ -6,7 +6,7 @@ This repository contains step-by-step tutorials and code samples to learn how to
 
 - [api-samples](api-samples): Simple snippets of how to reference a specific feature in the API.
 - [build-custom-image](build-custom-image): Instructions on how to create a Batch compatible image with various operating system types.
-- [fine-tuning](fine-tuning): Fine-tune a large language model using the Axolotl framework as a Batch job.
+- [gen-ai](gen-ai): Examples for Generative AI use cases, including fine-tuning large language models.
 - [transcoding](transcoding): Quickstart tutorial of transcoding videos using Batch.
 - [busybox](busybox): A simple sample to run a container as a Batch job.
 - [primegen](primegen): An end-to-end sample of using Workflows and Cloud Build with Batch to automate the lifecycle of Batch jobs.
