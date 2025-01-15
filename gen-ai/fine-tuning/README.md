@@ -24,7 +24,7 @@ From the [Cloud Shell](https://cloud.google.com/shell/docs/launching-cloud-shell
 
     ```bash
     git clone https://github.com/GoogleCloudPlatform/batch-samples
-    cd fine-tuning
+    cd gen-ai/fine-tuning
     ```
 
 2.  **Configure environment variables:**
