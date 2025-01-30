@@ -17,7 +17,7 @@
 sudo apt-get -y update
 sudo apt-get -y install ffmpeg
 
-dir=/mnt/share
+dir=/mnt/disks/share
 infile=$dir/input/video-$BATCH_TASK_INDEX.mp4
 outfile=$dir/output/video-$BATCH_TASK_INDEX.webm
 vopts=-c:v libvpx-vp9 -b:v 1800k -minrate 1500 -maxrate 1610
