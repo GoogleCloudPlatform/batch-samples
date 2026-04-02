@@ -1,0 +1,14 @@
+#!/bin/bash
+
+sudo apt-get -y update
+sudo apt-get -y install ghostscript
+
+filename=${FILE_NAME}
+
+dir=/mnt/share
+infile=$dir/input/$filename
+outfile=$dir/output/${filename/.pdf/_compressed.pdf}
+vopts="-sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dBATCH -dQUIET"
+
+mkdir -p $dir/output
+gs $vopts -sOutputFile=$outfile $infile
